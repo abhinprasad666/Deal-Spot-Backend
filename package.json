@@ -16,7 +16,10 @@
         "nodemon": "^3.1.10"
     },
     "dependencies": {
+        "bcrypt": "^6.0.0",
+        "cookie-parser": "^1.4.7",
         "express-async-handler": "^1.2.0",
-        "express-validator": "^7.2.1"
+        "express-validator": "^7.2.1",
+        "jsonwebtoken": "^9.0.2"
     }
 }
