@@ -1,4 +1,6 @@
 import { Router } from "express";
+import isAuthRoute from "../middlewares/isAuthRoute.js";
+import { getProfileController } from "../controllers/userController.js";
 
 
 
@@ -6,7 +8,8 @@ import { Router } from "express";
 
 const userRouter=Router()
 
-
+// get Profile
+userRouter.get('/profile',isAuthRoute,getProfileController)
 
 
 
