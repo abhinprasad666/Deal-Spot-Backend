@@ -5,7 +5,7 @@ import { Schema, model } from "mongoose";
 const sellerSchema = new Schema(
     {
         seller: {
-            type: mongoose.Schema.Types.ObjectId,
+            type: Schema.Types.ObjectId,
             ref: "User",
             required: [true, "User reference is required."],
             unique: true,
@@ -45,8 +45,8 @@ const sellerSchema = new Schema(
         },
         role: {
             type: String,
-            enum: ["customer", "seller", "admin"],
-            default: "customer",
+            enum: ["seller", "admin"],
+            default: "seller",
         },
         status: {
             type: String,
