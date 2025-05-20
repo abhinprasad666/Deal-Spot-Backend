@@ -52,7 +52,10 @@ const productSchema = new mongoose.Schema(
             default: 0,
             min: 0,
         },
-        reviews: [reviewSchema],
+        reviews: {
+            type: [reviewSchema],
+            default: [],
+        },
 
         isFeatured: {
             type: Boolean,
@@ -62,6 +65,6 @@ const productSchema = new mongoose.Schema(
     { timestamps: true }
 );
 
-const Product=model("Product", productSchema);
+const Product = model("Product", productSchema);
 
-export default Product
+export default Product;

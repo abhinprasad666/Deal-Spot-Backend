@@ -28,8 +28,8 @@ const sellerSchema = new Schema(
         gstNumber: {
             type: String,
             required: [true, "GST number is required."],
-            match: [/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/, "Enter a valid GST number."],
-            default: null,
+            // match: [/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/, "Enter a valid GST number."],
+            default:0,
         },
         profileImage: {
             type: String,
@@ -43,11 +43,7 @@ const sellerSchema = new Schema(
             type: Boolean,
             default: false,
         },
-        role: {
-            type: String,
-            enum: ["seller", "admin"],
-            default: "seller",
-        },
+    
         status: {
             type: String,
             enum: {
