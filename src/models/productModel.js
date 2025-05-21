@@ -1,8 +1,10 @@
-const productSchema = new mongoose.Schema(
+import { Schema, model } from "mongoose";
+
+const productSchema = new Schema(
     {
         seller: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "User",
+            type: Schema.Types.ObjectId,
+            ref: "Seller",
             required: true,
         },
         name: {
@@ -15,7 +17,7 @@ const productSchema = new mongoose.Schema(
             type: String,
             required: [true, "Product description is required"],
             minlength: [10, "Description must be at least 10 characters"],
-            maxlength: [2000, "Description must not exceed 2000 characters"],
+            maxlength: [2000, "Daescription must not exceed 2000 characters"],
         },
         price: {
             type: Number,
@@ -27,7 +29,7 @@ const productSchema = new mongoose.Schema(
             default: "",
         },
         category: {
-            type: mongoose.Schema.Types.ObjectId,
+            type: Schema.Types.ObjectId,
             ref: "Category",
         },
         brand: {
@@ -52,10 +54,13 @@ const productSchema = new mongoose.Schema(
             default: 0,
             min: 0,
         },
-        reviews: {
-            type: [reviewSchema],
-            default: [],
-        },
+        reviews: [
+            {
+                type:Schema.Types.ObjectId,
+                ref: "Review",
+                default:[]
+            },
+        ],
 
         isFeatured: {
             type: Boolean,

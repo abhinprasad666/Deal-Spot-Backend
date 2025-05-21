@@ -1,12 +1,11 @@
 import asyncHandler from "express-async-handler";
 import Seller from "../models/sellerModel.js";
 
-
 // Seller signup controller
 // User must be logged in, req.user._id is available
 
 export const sellerRegister = asyncHandler(async (req, res) => {
-    const sellerId = req.currentUser.userId // from auth middleware
+    const sellerId = req.currentUser.userId; // from auth middleware
 
     // Check if seller profile already exists for this user
     const sellerExists = await Seller.findOne({ sellerId });
@@ -18,7 +17,7 @@ export const sellerRegister = asyncHandler(async (req, res) => {
     const { shopName, bio, address, gstNumber, profileImage, coverImage } = req.body || {};
 
     // Create new seller profile
-    const seller = await Seller.create({
+    const newSeller = await Seller.create({
         seller: sellerId,
         shopName,
         bio: bio || "",
@@ -32,11 +31,8 @@ export const sellerRegister = asyncHandler(async (req, res) => {
         totalProfit: 0,
     });
 
-    if (seller) {
-        res.status(201).json(
-         {   success:true,
-            message:"Seller Account Created",
-            seller});
+    if (newSeller) {
+        res.status(201).json({ success: true, message: "Seller Account Created", newSeller });
     } else {
         res.status(400);
         throw new Error("Invalid seller data");
