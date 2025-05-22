@@ -1,40 +1,92 @@
+// controllers/sellerController.js
 import asyncHandler from "express-async-handler";
 import Seller from "../models/sellerModel.js";
+import { generateToken } from "../utils/generateToken.js";
+import { setAuthCookie } from "../utils/cookieHandler.js";
 
-// Seller signup controller
-// User must be logged in, req.user._id is available
+// @desc    Register new seller
+// @route   POST /api/v1/selle/auth/register
+// @access  Public
+export const registerSeller = asyncHandler(async (req, res) => {
+    // user input destructuring
+    const { name, email, password, shopName, address, gstNumber } = req.body;
 
-export const sellerRegister = asyncHandler(async (req, res) => {
-    const sellerId = req.currentUser.userId; // from auth middleware
+    // check for existing seller
+    const existSeller = await Seller.findOne({ email });
 
-    // Check if seller profile already exists for this user
-    const sellerExists = await Seller.findOne({ sellerId });
-    if (sellerExists) {
+    if (existSeller) {
         res.status(400);
-        throw new Error("Seller profile already exists for this user");
+        throw new Error("Seller already exists with this email.");
     }
 
-    const { shopName, bio, address, gstNumber, profileImage, coverImage } = req.body || {};
-
-    // Create new seller profile
-    const newSeller = await Seller.create({
-        seller: sellerId,
+    //  Create new seller with hashed password (handled in sellerModel pre-save middleware)
+    const seller = await Seller.create({
+        name,
+        email,
+        password,
         shopName,
-        bio: bio || "",
         address,
         gstNumber,
-        profileImage: profileImage || "",
-        coverImage: coverImage || "",
-        isVerified: false,
-        role: "seller",
-        statusUpdatedAt: Date.now(),
-        totalProfit: 0,
     });
 
-    if (newSeller) {
-        res.status(201).json({ success: true, message: "Seller Account Created", newSeller });
+    // check creation success
+    if (seller) {
+        const token = generateToken(seller._id, seller.role); //  Generate JWT token
+
+        setAuthCookie(res, token); // cookie on the response
+        newUser.password = null; //  Remove password from response for security
+        res.status(201).json({
+            success: true,
+            message: "Seller Account Created",
+            seller,
+        });
     } else {
-        res.status(400);
-        throw new Error("Invalid seller data");
+        res.status(500);
+        throw new Error("Failed to register seller. Please try again.");
     }
+});
+
+
+//loginController
+// @route POST /api/v1/seller/auth/login
+
+export const sellerLoginController = asyncHandler(async (req, res) => {
+    const { email, password } = req.body || {};
+
+    const existSeller = await Seller.findOne({ email });
+    console.log("seller", existSeller);
+
+    if (existSeller && (await existSeller.checkPassword(password))) {
+
+        //  Generate JWT token and send it as a cookie
+        const token = generateToken(existSeller._id, existSeller.role);
+
+        setAuthCookie(res, token); // cookie on the response
+
+        existSeller.password = null; //  Remove password from response for security
+
+        return res.status(200).json({
+            success: true,
+            message: "Login Successfully",
+            existSeller,
+        });
+    } else {
+        throw new Error("Invalid Email or Password");
+    }
+});
+
+
+//logoutController
+// POST /api/v1/seller/auth/logout
+
+export const sellerLogoutController = asyncHandler(async (req, res) => {
+    res.cookie("token", "", {
+        httpOnly: true,
+        expires: new Date(0),
+    });
+
+    res.status(200).json({
+        success: true,
+        message: "Logout",
+    });
 });

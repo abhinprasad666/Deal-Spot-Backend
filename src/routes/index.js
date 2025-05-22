@@ -14,11 +14,11 @@ const router=Router()
 
 
 //auth router
-router.use('/auth',authRouter);
+router.use('/user/auth',authRouter);
 //user router
-router.use('/user',userRouter);
+router.use('/user/profile',userRouter);
 //seller router
-router.use('/seller',sellerRouter);
+router.use('/seller/auth',sellerRouter);
 //admin router
 router.use('/admin',adminRouter);
 //product router

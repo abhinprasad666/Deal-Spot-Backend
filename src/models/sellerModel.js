@@ -1,14 +1,27 @@
 import { Schema, model } from "mongoose";
+import bcrypt from 'bcrypt';
 
 // models/Seller.js
 
 const sellerSchema = new Schema(
     {
-        seller: {
-            type: Schema.Types.ObjectId,
-            ref: "User",
-            required: [true, "User reference is required."],
+        name: {
+            type: String,
+            required: [true, "Name required!"],
+            trim: true
+        },
+        email: {
+            type: String,
+            required: [true, "Email required!"],
             unique: true,
+            trim: true,
+            lowercase: true
+        },
+        password: {
+            type: String,
+            required: [true, "Password required!"],
+            minlength: [8, "Password must be at least 8 characters"],
+            maxlength: [128, "Password cannot exceed 128 characters"],
         },
         shopName: {
             type: String,
@@ -27,39 +40,56 @@ const sellerSchema = new Schema(
         },
         gstNumber: {
             type: String,
-            required: [true, "GST number is required."],
+            // required: [true, "GST number is required."],
             // match: [/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/, "Enter a valid GST number."],
-            default:0,
+            default: null,
         },
         profileImage: {
             type: String,
             default: "",
         },
         coverImage: {
-            type: String, // optional
+            type: String,
             default: "",
         },
         isVerified: {
             type: Boolean,
             default: false,
         },
-    
+        role: {
+            type: String,
+            enum: ["seller", "admin"],
+            default: "seller",
+        },
         status: {
             type: String,
-            enum: {
-                values: ["active", "blocked", "deleted"],
-                default: "active",
-            },
+            enum: ["active", "blocked", "deleted"],
+            default: "active",
         },
         statusUpdatedAt: {
             type: Date,
             default: Date.now,
         },
-        totalProfit: { type: Number, default: 0 }, // optional
+        totalProfit: { type: Number, default: 0 },
     },
     { timestamps: true }
 );
 
-const Seller= model("Seller", sellerSchema);
+// password hash before saving
+sellerSchema.pre("save", async function (next) {
+    if (!this.isModified("password")) {
+        return next();
+    }
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+    next();
+});
 
-export default Seller
+// password compare method
+sellerSchema.methods.checkPassword = async function (givenPassword) {
+    return await bcrypt.compare(givenPassword, this.password);
+};
+
+const Seller = model("Seller", sellerSchema);
+
+export default Seller;

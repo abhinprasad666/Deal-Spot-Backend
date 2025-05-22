@@ -48,7 +48,6 @@ export const loginController = asyncHandler(async (req, res) => {
     console.log("user", existUser);
 
     if (existUser && (await existUser.checkPassword(password))) {
-        generateToken(existUser._id, existUser.role, res);
 
         //  Generate JWT token and send it as a cookie
         const token = generateToken(existUser._id, existUser.role);
