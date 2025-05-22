@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { registerSeller, sellerLoginController, sellerLogoutController } from "../controllers/sellerController.js";
+import { registerSeller, sellerLoginController, sellerLogoutController } from "../controllers/sellerAuthController.js";
 import { runValidation, sellerRegisterValidation } from "../middlewares/sellerValidation.js";
 
 
