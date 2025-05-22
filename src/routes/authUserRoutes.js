@@ -6,16 +6,16 @@ import { runValidation, validateSignup } from "../middlewares/userValidatioinMid
 
 
 
-const authRouter=Router()
+const authUserRouter=Router()
 
 
 
 // Validation middleware added here
-authRouter.post('/singup', validateSignup,runValidation,signupController); //singup
+authUserRouter.post('/singup', validateSignup,runValidation,signupController); //singup
 //login
-authRouter.post('/login', validateSignup,runValidation,loginController);
+authUserRouter.post('/login', validateSignup,runValidation,loginController);
 //logout
-authRouter.post('/logout',logoutController)
+authUserRouter.post('/logout',logoutController)
 
 
-export default authRouter
+export default authUserRouter

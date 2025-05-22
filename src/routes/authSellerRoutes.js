@@ -2,13 +2,13 @@ import { Router } from "express";
 import { registerSeller, sellerLoginController, sellerLogoutController } from "../controllers/sellerAuthController.js";
 import { runValidation, sellerRegisterValidation } from "../middlewares/sellerValidation.js";
 
-const sellerRouter = Router();
+const authSellerRouter = Router();
 
 //register
-sellerRouter.post("/register", sellerRegisterValidation, runValidation, registerSeller);
+authSellerRouter.post("/register", sellerRegisterValidation, runValidation, registerSeller);
 //login
-sellerRouter.post("/login", sellerLoginController);
+authSellerRouter.post("/login", sellerLoginController);
 //logout
-sellerRouter.post("/logout", sellerLogoutController);
+authSellerRouter.post("/logout", sellerLogoutController);
 
-export default sellerRouter;
+export default authSellerRouter;

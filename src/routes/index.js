@@ -2,23 +2,28 @@ import { Router } from "express";
 import authUserRouter from "./authUserRoutes.js";
 import userRouter from "./userRoutes.js";
 import productRouter from "./productRoutes.js";
-import sellerRouter from "./authSellerRoutes.js";
+import authSellerRouter from "./authSellerRoutes.js";
 import adminRouter from "./adminRoutes.js";
 import reviewRouter from "./reviewRoutes.js";
 import categoryRouter from "./categoryRoutes.js";
 import cartRouter from "./cartRoutes.js";
 import paymentRouter from "./paymentRoutes.js";
+import sellerRouter from "./sellerRoutes.js";
+
 
 
 const router=Router()
 
 
-//auth router
+//auth user router
 router.use('/user/auth',authUserRouter);
 //user router
 router.use('/user/profile',userRouter);
-//seller router
-router.use('/seller/auth',sellerRouter);
+//auth seller router
+router.use('/seller/auth',authSellerRouter);
+// seller router
+router.use('/seller',sellerRouter);
+
 //admin router
 router.use('/admin',adminRouter);
 //product router

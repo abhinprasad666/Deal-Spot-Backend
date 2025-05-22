@@ -10,7 +10,7 @@ import { createProduct, getAllProducts } from "../controllers/productController.
 const productRouter=Router()
 
  productRouter.post('/create',isAuthRoute,isAuthSeller,createProduct);
- productRouter.get('/getAllProduct',isAuthRoute,isAuthSeller,getAllProducts)
+ productRouter.get('/getAllProduct',isAuthRoute,isAuthSeller,getAllProducts);
 
 
 

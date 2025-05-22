@@ -21,9 +21,13 @@ const isAuthUser = asyncHandler(async (req, res, next) => {
                 res.status(401);
                 throw new Error("User not found with this token!");
             }
-
+            // Access Seller or Admin only
+            if (!(seller.role === "seller" || !seller.role === "admin")) {
+                res.status(403);
+                throw new Error("Access denied. Seller or Admin only.");
+            }
             //  Attach user to request object for further use
-            req.user = decodedToken;
+            req.seller = decodedToken;
 
             //  Continue to next middleware/controller
             next();

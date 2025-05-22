@@ -5,7 +5,7 @@ import User from "../models/userModel.js";
 // @route   GET /api/v1/users/profile
 // @access  Private
 export const getMyProfileController = asyncHandler(async (req, res) => {
-    //  Get user info from request (added by isAuthRoute middleware)
+    //  Get user info from request (added by isAuthUser middleware)
     const user = req.user;
 
     //  If user not found, throw error

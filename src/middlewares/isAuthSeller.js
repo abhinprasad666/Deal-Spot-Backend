@@ -1,29 +1,42 @@
-import User from "../models/userModel.js";
 import asyncHandler from "express-async-handler";
+import jwt from "jsonwebtoken";
+import Seller from "../models/sellerModel.js";
 
-export const isAuthSeller = asyncHandler(async (req, res, next) => {
-    const { userId, role } = req.currentUser || {};
-    console.log('sis seller',role,userId)
-    //  Check if user is authenticated
-    if (!userId) {
-        // 401 = Unauthorized: User is not logged in
-        res.status(401);
-        throw new Error("Not authenticated");
-    }
 
-    // Find the user in the database to ensure they exist
-    const currentUser = await User.findById({ _id: userId });
+// @desc    Middleware to verify JWT token and authenticate user
+// @access  Protected Routes Only
+ export const isAuthSeller = asyncHandler(async (req, res, next) => {
+    //  Get token from cookies
+    const token = req.cookies.token;
 
-    if (!currentUser) {
-        res.status(404);
-        throw new Error("User not found");
-    }
-    //Allowed: seller or admin
-    if (role === "seller" || role === "admin") {
-        return next();
+    if (token) {
+        try {
+            //  Verify token using secret key
+            const decodedToken = jwt.verify(token, process.env.JWT_SECRET_KEY);
+
+            //  Find user in DB using userId from token
+            const seller = await Seller.findById(decodedToken.userId).select("-password");
+
+            //  If no user found, throw unauthorized error
+            if (!seller) {
+                res.status(401);
+                throw new Error("seller not found with this token!");
+            }
+
+            //  Attach seller to request object for further use
+            req.seller = decodedToken;
+
+            //  Continue to next middleware/controller
+            next();
+        } catch (error) {
+            res.status(401);
+            throw new Error("Invalid token!");
+        }
     } else {
-        res.status(403);
-        // 403 = Forbidden: User is authenticated but not allowed to access this route
-        throw new Error("Access denied. Seller or Admin only.");
+        //  If no token found, block access
+        res.status(401);
+        throw new Error("Unauthorized! Token missing.");
     }
 });
+
+export default isAuthSeller;
