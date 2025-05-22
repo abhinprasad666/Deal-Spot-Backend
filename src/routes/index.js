@@ -1,8 +1,8 @@
 import { Router } from "express";
-import authRouter from "./authRoutes.js";
+import authUserRouter from "./authUserRoutes.js";
 import userRouter from "./userRoutes.js";
 import productRouter from "./productRoutes.js";
-import sellerRouter from "./sellerRoutes.js";
+import sellerRouter from "./authSellerRoutes.js";
 import adminRouter from "./adminRoutes.js";
 import reviewRouter from "./reviewRoutes.js";
 import categoryRouter from "./categoryRoutes.js";
@@ -14,7 +14,7 @@ const router=Router()
 
 
 //auth router
-router.use('/user/auth',authRouter);
+router.use('/user/auth',authUserRouter);
 //user router
 router.use('/user/profile',userRouter);
 //seller router
