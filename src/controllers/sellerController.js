@@ -22,7 +22,7 @@ export const getSellerProfileController = asyncHandler(async (req, res) => {
         throw new Error("Seller not found");
     }
 
-    // ✅ Return seller profile
+    // Return seller profile
     res.status(200).json({
         success: true,
         message: `${seller.role}`,
