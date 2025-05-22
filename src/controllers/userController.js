@@ -6,7 +6,7 @@ import User from "../models/userModel.js";
 // @access  Private
 export const getMyProfileController = asyncHandler(async (req, res) => {
     //  Get user info from request (added by isAuthUser middleware)
-    const user = req.user;
+    const user = req.user || {};
 
     //  If user not found, throw error
     if (!user) {
@@ -23,7 +23,7 @@ export const getMyProfileController = asyncHandler(async (req, res) => {
 // @access  Private
 export const updateMyProfileController = asyncHandler(async (req, res) => {
     //  Get logged-in user from request (set by isAuthRoute middleware)
-    const user = req.user.useId;
+    const user = req.user.userId || {};
 
     //  Update fields if provided
     const { name, email, password, profilePic } = req.body || {};
