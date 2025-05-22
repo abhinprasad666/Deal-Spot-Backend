@@ -1,7 +1,7 @@
 import User from "../models/userModel.js";
 import asyncHandler from "express-async-handler";
 
-export const isSeller = asyncHandler(async (req, res, next) => {
+export const isAuthSeller = asyncHandler(async (req, res, next) => {
     const { userId, role } = req.currentUser || {};
     console.log('sis seller',role,userId)
     //  Check if user is authenticated

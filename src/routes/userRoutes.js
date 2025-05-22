@@ -1,5 +1,5 @@
 import { Router } from "express";
-import isAuthRoute from "../middlewares/isAuthRoute.js";
+import isAuthUser from "../middlewares/isAuthUser.js";
 import { deleteMyAccountController, getMyProfileController, updateMyProfileController } from "../controllers/userController.js";
 
 
@@ -9,11 +9,11 @@ import { deleteMyAccountController, getMyProfileController, updateMyProfileContr
 const userRouter=Router()
 
 // get Profile
-userRouter.get('/',isAuthRoute,getMyProfileController)
+userRouter.get('/',isAuthUser,getMyProfileController)
 //update my profile
-userRouter.put('/',isAuthRoute,updateMyProfileController)
+userRouter.put('/',isAuthUser,updateMyProfileController)
 //delete my account
-userRouter.delete('/',isAuthRoute,deleteMyAccountController)
+userRouter.delete('/',isAuthUser,deleteMyAccountController)
 
 
 

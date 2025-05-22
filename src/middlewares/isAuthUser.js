@@ -4,7 +4,7 @@ import User from "../models/userModel.js";
 
 // @desc    Middleware to verify JWT token and authenticate user
 // @access  Protected Routes Only
-const isAuthRoute = asyncHandler(async (req, res, next) => {
+const isAuthUser = asyncHandler(async (req, res, next) => {
     //  Get token from cookies
     const token = req.cookies.token;
 
@@ -38,4 +38,4 @@ const isAuthRoute = asyncHandler(async (req, res, next) => {
     }
 });
 
-export default isAuthRoute;
+export default isAuthUser;
