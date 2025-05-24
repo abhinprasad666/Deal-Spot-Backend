@@ -3,5 +3,3 @@ node_modules
 admin.js
 multer.js
 cloudinary.js
-roleLogin.js
-roleLoginController.js
