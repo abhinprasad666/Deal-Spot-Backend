@@ -33,7 +33,11 @@ const userSchema = new Schema(
             type:'String',
             enum:["active","blocked","deleted"],
             default:"active"
-        }
+        } ,
+        statusUpdatedAt: {
+            type: Date,
+            default: Date.now,
+        },
     },
     { timestamps: true }
 );

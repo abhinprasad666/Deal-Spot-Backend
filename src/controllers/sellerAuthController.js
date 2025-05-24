@@ -54,7 +54,6 @@ export const sellerLoginController = asyncHandler(async (req, res) => {
     const { email, password } = req.body || {};
 
     const existSeller = await Seller.findOne({ email });
-    console.log("seller", existSeller);
 
     if (existSeller && (await existSeller.checkPassword(password))) {
 

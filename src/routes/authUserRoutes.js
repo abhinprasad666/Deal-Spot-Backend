@@ -1,6 +1,6 @@
 import { Router } from "express"; 
 import { loginController, logoutController, signupController } from "../controllers/authUserController.js";
-import { runValidation, validateSignup } from "../middlewares/userValidatioinMiddleware.js";
+import { runValidation, validateLogin, validateSignup } from "../middlewares/userValidatioinMiddleware.js";
 import { upload } from "../middlewares/multer.js";
 
 
@@ -18,7 +18,7 @@ authUserRouter.post('/singup', validateSignup,runValidation,upload.single("image
 
 //login
 // api/v1/user/auth/login
-authUserRouter.post('/login', validateSignup,runValidation,loginController);
+authUserRouter.post('/login', validateLogin,runValidation,loginController);
 
 //logout
 // api/v1/user/auth/logout
