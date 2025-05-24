@@ -1,6 +1,5 @@
 import { Router } from "express";
-import { isAuthSeller } from "../middlewares/isAuthSeller.js";
-import isAuthRoute from "../middlewares/isAuthUser.js";
+import { protectRoute } from "../middlewares/protectRoute.js";
 import { createProduct, getAllProducts } from "../controllers/productController.js";
 
 
@@ -9,8 +8,8 @@ import { createProduct, getAllProducts } from "../controllers/productController.
 
 const productRouter=Router()
 
- productRouter.post('/create',isAuthRoute,isAuthSeller,createProduct);
- productRouter.get('/getAllProduct',isAuthRoute,isAuthSeller,getAllProducts);
+ productRouter.post('/create',protectRoute,createProduct);
+ productRouter.get('/getAllProduct',protectRoute,getAllProducts);
 
 
 

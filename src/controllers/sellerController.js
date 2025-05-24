@@ -1,25 +1,27 @@
 import asyncHandler from "express-async-handler";
 import Seller from "../models/sellerModel.js";
+import User from "../models/userModel.js";
+
 
 // @route   GET /api/v1/seller/profile
 // @access  Private (Seller/Admin only)
 export const getSellerProfileController = asyncHandler(async (req, res) => {
     //  Get seller info from request (added by isAuthSeller middleware)
-    const sellerData = req.seller || {};
-
+    const user = req.user.userId || {};
+ console.log('seller control',user)
     //  If seller data not found in request (edge case)
-    if (!sellerData) {
+    if (!user) {
         res.status(404);
         throw new Error("Seller info missing in request");
     }
 
     //  Fetch complete seller details from DB (excluding password)
-    const seller = await Seller.findById(sellerData.userId).select("-password");
+    const seller = await Seller.findById(user).select("-password");
 
     //  If seller not found in database
     if (!seller) {
         res.status(404);
-        throw new Error("Seller not found");
+        throw new Error("Seller not found !");
     }
 
     // Return seller profile
@@ -36,7 +38,7 @@ export const getSellerProfileController = asyncHandler(async (req, res) => {
 
 export const updateMySellerProfileController = asyncHandler(async (req, res) => {
     //  Get logged-in seller from request (set by isAuthSeller middleware)
-    const seller = req.seller.userId;
+    const seller = req.user.userId;
 
     //  Update fields if provided
     const { name, email, shopName, bio, address, gstNumber, password, profileImage, coverImage } = req.body || {};
@@ -86,7 +88,7 @@ export const updateMySellerProfileController = asyncHandler(async (req, res) => 
 // @access  Private
 export const deleteMySellerAccountController = asyncHandler(async (req, res) => {
     //  Get logged-in user ID from auth middleware
-    const sellerId = req.seller?.userId;
+    const sellerId = req.user?.userId;
 
     //  Try deleting the seller from DB
     const deletedSeller = await Seller.findByIdAndDelete(sellerId);

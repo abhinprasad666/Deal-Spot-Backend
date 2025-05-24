@@ -29,7 +29,7 @@ export const updateMyProfileController = asyncHandler(async (req, res) => {
     const { name, email, password, profilePic } = req.body || {};
 
     //  Check if user exists
-    const existUser = await User.findOne({ user });
+    const existUser = await User.findOne({_id: user });
 
     if (!existUser) {
         res.status(404);

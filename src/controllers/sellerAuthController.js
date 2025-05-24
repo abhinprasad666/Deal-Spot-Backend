@@ -5,7 +5,7 @@ import { generateToken } from "../utils/generateToken.js";
 import { setAuthCookie } from "../utils/cookieHandler.js";
 
 // @desc    Register new seller
-// @route   POST /api/v1/selle/auth/register
+// @route   POST /api/v1/seller/auth/register
 // @access  Public
 export const registerSeller = asyncHandler(async (req, res) => {
     // user input destructuring
@@ -20,7 +20,7 @@ export const registerSeller = asyncHandler(async (req, res) => {
     }
 
     //  Create new seller with hashed password (handled in sellerModel pre-save middleware)
-    const seller = await Seller.create({
+    const newSeller = await Seller.create({
         name,
         email,
         password,
@@ -30,15 +30,15 @@ export const registerSeller = asyncHandler(async (req, res) => {
     });
 
     // check creation success
-    if (seller) {
-        const token = generateToken(seller._id, seller.role); //  Generate JWT token
+    if (newSeller) {
+        const token = generateToken(newSeller._id, newSeller.role); //  Generate JWT token
 
         setAuthCookie(res, token); // cookie on the response
-        newUser.password = null; //  Remove password from response for security
+        newSeller.password = null; //  Remove password from response for security
         res.status(201).json({
             success: true,
-            message: "Seller Account Created",
-            seller,
+            message: "New Seller Account Created",
+            newSeller,
         });
     } else {
         res.status(500);

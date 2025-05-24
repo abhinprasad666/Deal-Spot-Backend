@@ -1,0 +1,22 @@
+
+/**
+ * Middleware to authorize admin users only
+ */
+export const isAdmin = (req, res, next) => {
+    if (req.user.role === "admin") {
+        return next();
+    }
+    res.status(403);
+    throw new Error("Access denied: Admin privileges required");
+};
+
+/**
+ * Middleware to authorize sellers or admins only
+ */
+export const isSellerOrAdmin = (req, res, next) => {
+    if (req.user.role === "seller" || req.user.role === "admin") {
+        return next();
+    }
+    res.status(403);
+    throw new Error("Access denied: Only sellers or administrators are permitted");
+};

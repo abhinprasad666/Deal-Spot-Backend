@@ -1,6 +1,8 @@
 import { Router } from "express";
-import isAuthUser from "../middlewares/isAuthUser.js";
 import { deleteMyAccountController, getMyProfileController, updateMyProfileController } from "../controllers/userController.js";
+import { protectRoute } from "../middlewares/protectRoute.js";
+import { runValidation, validateUpdate } from "../middlewares/userValidatioinMiddleware.js";
+
 
 
 
@@ -9,11 +11,16 @@ import { deleteMyAccountController, getMyProfileController, updateMyProfileContr
 const userRouter=Router()
 
 // get Profile
-userRouter.get('/',isAuthUser,getMyProfileController)
+// api/v1/user/profile
+userRouter.get('/',protectRoute,getMyProfileController)
+
 //update my profile
-userRouter.put('/',isAuthUser,updateMyProfileController)
+// api/v1/user/profle
+userRouter.put('/',protectRoute,validateUpdate,runValidation,updateMyProfileController)
+
+// api/v1/user/profile
 //delete my account
-userRouter.delete('/',isAuthUser,deleteMyAccountController)
+userRouter.delete('/',protectRoute,deleteMyAccountController)
 
 
 

@@ -2,12 +2,18 @@ import asyncHandler from "express-async-handler";
 import User from "../models/userModel.js";
 import { generateToken } from "../utils/generateToken.js";
 import { setAuthCookie } from "../utils/cookieHandler.js";
+// import cloudinary from "../config/cloudinary.js";
 
 //     Signup new user
 // POST /api/v1/auth/signup
 
 export const signupController = asyncHandler(async (req, res) => {
     const { email } = req.body || {};
+    
+    // const file=req.file.path?req.file.path :""
+
+    // const cloudinaryResponse=await cloudinary.uploader.upload(file)
+    // console.log('cloudinary response',cloudinaryResponse)
 
     //  Check if a user with the given email already exists
     const userExists = await User.findOne({ email });

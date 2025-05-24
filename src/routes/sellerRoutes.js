@@ -1,17 +1,25 @@
 import { Router } from "express";
-import isAuthSeller from "../middlewares/isAuthSeller.js";
 import { deleteMySellerAccountController, getSellerProfileController, updateMySellerProfileController } from "../controllers/sellerController.js";
+import { protectRoute } from "../middlewares/protectRoute.js";
+import { isSellerOrAdmin } from "../middlewares/roleMiddleware.js";
+import { runValidation, sellerValidateUpdate } from "../middlewares/sellerValidation.js";
+
 
 
 
 const sellerRouter=Router()
 
 // get Profile
-sellerRouter.get('/profile',isAuthSeller,getSellerProfileController)
+// api/v1/seller/profile
+sellerRouter.get('/profile',protectRoute,isSellerOrAdmin,getSellerProfileController)
+
 // //update my profile
-sellerRouter.put('/',isAuthSeller,updateMySellerProfileController)
+// api/v1/seller/profile
+sellerRouter.put('/',protectRoute,isSellerOrAdmin,sellerValidateUpdate,runValidation,updateMySellerProfileController)
+
+// api/v1/seller/profile
 // //delete my account
-sellerRouter.delete('/',isAuthSeller,deleteMySellerAccountController)
+sellerRouter.delete('/',protectRoute,isSellerOrAdmin,deleteMySellerAccountController)
 
 
 
