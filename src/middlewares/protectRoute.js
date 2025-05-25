@@ -20,21 +20,7 @@ export const protectRoute = asyncHandler(async (req, res, next) => {
         // Verify and decode the token using the secret key
         const decodedToken = jwt.verify(token, process.env.JWT_SECRET_KEY);
 
-        let user;
-
-        // Fetch user/seller/admin based on the role inside the token
-        switch (decodedToken.role) {
-            case "customer":
-            case "admin": // Assuming both are stored in User model
-                user = await User.findById(decodedToken.userId).select("-password");
-                break;
-            case "seller":
-                user = await Seller.findById(decodedToken.userId).select("-password");
-                break;
-            default:
-                res.status(401);
-                throw new Error("Invalid role inside token.");
-        }
+        const user = await User.findById(decodedToken.userId).select("-password");
 
         // If no user is found in the database
         if (!user) {

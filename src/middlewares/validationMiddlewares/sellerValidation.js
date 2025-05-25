@@ -1,7 +1,6 @@
 import { body, validationResult } from "express-validator";
 
 export const sellerRegisterValidation = [
-    body("name").notEmpty().withMessage("Name is required"),
     body("password").notEmpty().withMessage("Password is required"),
     body("password").isLength({ min: 8, max: 128 }).withMessage("Password must be between 8 and 128 characters"),
 

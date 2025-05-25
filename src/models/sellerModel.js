@@ -1,27 +1,15 @@
 import { Schema, model } from "mongoose";
-import bcrypt from 'bcrypt';
+import bcrypt from "bcrypt";
 
 // models/Seller.js
 
 const sellerSchema = new Schema(
     {
-        name: {
-            type: String,
-            required: [true, "Name required!"],
-            trim: true
-        },
-        email: {
-            type: String,
-            required: [true, "Email required!"],
-            unique: true,
-            trim: true,
-            lowercase: true
-        },
-        password: {
-            type: String,
-            required: [true, "Password required!"],
-            minlength: [8, "Password must be at least 8 characters"],
-            maxlength: [128, "Password cannot exceed 128 characters"],
+        userId: {
+            type: Schema.Types.ObjectId,
+            ref: "User",
+            required: true,
+            unique: true, // each user can have only one seller profile
         },
         shopName: {
             type: String,
@@ -36,7 +24,7 @@ const sellerSchema = new Schema(
         address: {
             type: String,
             required: [true, "Address is required."],
-            default: "",
+            
         },
         gstNumber: {
             type: String,
@@ -55,11 +43,6 @@ const sellerSchema = new Schema(
         isVerified: {
             type: Boolean,
             default: false,
-        },
-        role: {
-            type: String,
-            enum: ["seller", "admin"],
-            default: "seller",
         },
         status: {
             type: String,

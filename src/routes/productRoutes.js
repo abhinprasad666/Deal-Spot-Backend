@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { protectRoute } from "../middlewares/protectRoute.js";
-import { createProduct, getAllProducts } from "../controllers/productController.js";
+// import { createProduct, getAllProducts } from "../controllers/productController.js";
 
 
 
@@ -8,8 +8,8 @@ import { createProduct, getAllProducts } from "../controllers/productController.
 
 const productRouter=Router()
 
- productRouter.post('/create',protectRoute,createProduct);
- productRouter.get('/getAllProduct',protectRoute,getAllProducts);
+//  productRouter.post('/create',protectRoute,createProduct);
+//  productRouter.get('/getAllProduct',protectRoute,getAllProducts);
 
 
 

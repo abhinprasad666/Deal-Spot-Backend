@@ -1,7 +1,8 @@
 import { Router } from "express";
 import { deleteMyAccountController, getMyProfileController, updateMyProfileController } from "../controllers/userController.js";
 import { protectRoute } from "../middlewares/protectRoute.js";
-import { runValidation, validateUpdate } from "../middlewares/userValidatioinMiddleware.js";
+import { runValidation, validateUpdate } from "../middlewares/validationMiddlewares/userValidatioinMiddleware.js";
+
 
 
 

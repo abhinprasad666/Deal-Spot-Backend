@@ -1,7 +1,7 @@
 import { body, validationResult, } from "express-validator";
 
 //  Signup Input Validation Rules
-export const validateSignup = [
+export const  validateSignup = [
     body("name", "Name is required").notEmpty(),
  body("password").notEmpty().withMessage("Password is required"),
     body("password").isLength({ min: 8, max: 128 })

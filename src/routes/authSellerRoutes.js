@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { registerSeller, sellerLoginController, sellerLogoutController } from "../controllers/sellerAuthController.js";
-import { runValidation, sellerRegisterValidation } from "../middlewares/sellerValidation.js";
+import { runValidation, sellerRegisterValidation } from "../middlewares/validationMiddlewares/sellerValidation.js";
+
 
 const authSellerRouter = Router();
 

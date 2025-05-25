@@ -9,11 +9,7 @@ import { setAuthCookie } from "../utils/cookieHandler.js";
 
 export const signupController = asyncHandler(async (req, res) => {
     const { email } = req.body || {};
-    
-    // const file=req.file.path?req.file.path :""
-
-    // const cloudinaryResponse=await cloudinary.uploader.upload(file)
-    // console.log('cloudinary response',cloudinaryResponse)
+   
 
     //  Check if a user with the given email already exists
     const userExists = await User.findOne({ email });
@@ -51,7 +47,6 @@ export const loginController = asyncHandler(async (req, res) => {
     const { email, password } = req.body || {};
 
     const existUser = await User.findOne({ email });
-    console.log("user", existUser);
 
     if (existUser && (await existUser.checkPassword(password))) {
 

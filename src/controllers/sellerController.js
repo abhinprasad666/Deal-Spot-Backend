@@ -3,6 +3,85 @@ import Seller from "../models/sellerModel.js";
 import User from "../models/userModel.js";
 
 
+
+// @desc    Create Seller Account (with email/password verification)
+// @route   POST /api/v1/seller
+// @access  Private
+export const registerController = asyncHandler(async (req, res) => {
+  const { email, password, shopName, bio, address } = req.body || {};
+
+  // Ensure the user is logged in
+  if (!req.user) {
+    res.status(401);
+    throw new Error("Please log in to create a seller account.");
+  }
+
+  const userId = req.user.userId;
+
+  // Find user by ID from the database
+  const user = await User.findById(userId);
+  if (!user) {
+    res.status(404);
+    throw new Error("User not found. Please sign up.");
+  }
+
+  //  Verify that the email matches the logged-in user's email
+  if (user.email !== email) {
+    res.status(401);
+    throw new Error("Entered email does not match your account.");
+  }
+
+  // Verify the user's password
+  const isPasswordCorrect = await user.checkPassword(password);
+  if (!isPasswordCorrect) {
+    res.status(401);
+    throw new Error("Incorrect password.");
+  }
+
+  // Check if a seller account already exists for this user
+  const existingSeller = await Seller.findOne({ userId });
+  if (existingSeller) {
+    res.status(400);
+    throw new Error("Seller account already exists for this user.");
+  }
+
+  // Update user role to "seller"
+  user.role = "seller";
+
+  // Save the updated user to the database
+  const savedUser = await user.save();
+
+  // Convert the user object to plain JS and remove the password before sending response
+  const userObj = savedUser.toObject();
+  delete userObj.password;
+
+  // Create a new seller record in the database
+  const newSeller = await Seller.create({
+    userId,
+    shopName,
+    bio,
+    address,
+  });
+
+  // Send a success response with created seller and updated user data
+  res.status(201).json({
+    message: "Seller account created successfully",
+    userData: userObj,
+    sellerData: newSeller,
+  });
+});
+
+
+
+
+
+
+
+
+
+
+
+
 // @route   GET /api/v1/seller/profile
 // @access  Private (Seller/Admin only)
 export const getSellerProfileController = asyncHandler(async (req, res) => {

@@ -65,7 +65,7 @@ export const updateRoleUserOrSeller = asyncHandler(async (req, res) => {
         throw new Error("Access denied. Admins only.");
     }
     // Validate incoming role
-    const allowedRoles = ["customer", "admin"];
+    const allowedRoles = ["customer", "seller","admin"];
     if (!allowedRoles.includes(role)) {
         res.status(400);
         throw new Error(`Invalid role. Allowed roles: ${allowedRoles}`);
