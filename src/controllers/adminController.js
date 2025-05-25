@@ -5,7 +5,7 @@ import Seller from "../models/sellerModel.js";
 // @desc    Get all users (Admin only)
 // @route   GET /api/v1/admin/users
 // @access  Private/Admin
-const getAllUsers = asyncHandler(async (req, res) => {
+export const getAllUsers = asyncHandler(async (req, res) => {
     // Check if the user is logged in and is an admin
     if (req.user.role !== "admin") {
         res.status(403);
@@ -13,7 +13,7 @@ const getAllUsers = asyncHandler(async (req, res) => {
     }
 
     // Fetch all users from the database (excluding password)
-    const users = await User.find().select("-password");
+   const users = await User.find({ role: "customer" }).select("-password");
 
     // Return the list of users
     res.status(200).json({
@@ -23,7 +23,29 @@ const getAllUsers = asyncHandler(async (req, res) => {
     });
 });
 
-export { getAllUsers };
+
+
+// @desc    Get all sellers (admin access only)
+// @route   GET /api/v1/admin/sellers
+// @access  Private/Admin
+export const getAllSellers = asyncHandler(async (req, res) => {
+    // Check if the requester is an admin
+    if (req.user.role !== "admin") {
+        res.status(403);
+        throw new Error("Access denied. Admins only.");
+    }
+
+    // Fetch all users with role 'seller', excluding password
+  const sellers = await User.find({ role: "seller" }).select("-password");
+
+    //  Return seller list with count
+    res.status(200).json({
+        success: true,
+        count: sellers.length,
+        sellers,
+    });
+});
+
 
 // @desc    Get a user or seller by ID (admin access only)
 // @route   GET /api/v1/admin/user/:id
@@ -91,33 +113,13 @@ export const updateRoleUserOrSeller = asyncHandler(async (req, res) => {
     });
 });
 
-// @desc    Get all sellers (admin access only)
-// @route   GET /api/v1/admin/sellers
-// @access  Private/Admin
-export const getAllSellers = asyncHandler(async (req, res) => {
-    // Check if the requester is an admin
-    if (req.user.role !== "admin") {
-        res.status(403);
-        throw new Error("Access denied. Admins only.");
-    }
-
-    // Fetch all users with role 'seller', excluding password
-    const sellers = await Seller.find().select("-password");
-
-    //  Return seller list with count
-    res.status(200).json({
-        success: true,
-        count: sellers.length,
-        sellers,
-    });
-});
 
 // @desc    Block or unblock a user or seller by admin
 // @route   PUT /api/v1/admin/block/:id
 // @access  Private/Admin
 export const blockUnblockController = asyncHandler(async (req, res) => {
     const userId = req.params.id;
-    console.log("block", userId);
+   
     // Only admin can perform this action
     if (req.user.role !== "admin") {
         res.status(403);
