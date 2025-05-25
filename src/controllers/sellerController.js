@@ -2,100 +2,88 @@ import asyncHandler from "express-async-handler";
 import Seller from "../models/sellerModel.js";
 import User from "../models/userModel.js";
 
-
-
 // @desc    Create Seller Account (with email/password verification)
 // @route   POST /api/v1/seller
 // @access  Private
 export const registerController = asyncHandler(async (req, res) => {
-  const { email, password, shopName, bio, address } = req.body || {};
+    const { email, password, shopName, bio, address } = req.body || {};
 
-  // Ensure the user is logged in
-  if (!req.user) {
-    res.status(401);
-    throw new Error("Please log in to create a seller account.");
-  }
+    // Ensure the user is logged in
+    if (!req.user) {
+        res.status(401);
+        throw new Error("Please log in to create a seller account.");
+    }
 
-  const userId = req.user.userId;
+    const userId = req.user.userId;
 
-  // Find user by ID from the database
-  const user = await User.findById(userId);
-  if (!user) {
-    res.status(404);
-    throw new Error("User not found. Please sign up.");
-  }
+    // Find user by ID from the database
+    const user = await User.findById(userId);
+    if (!user) {
+        res.status(404);
+        throw new Error("User not found. Please sign up.");
+    }
 
-  //  Verify that the email matches the logged-in user's email
-  if (user.email !== email) {
-    res.status(401);
-    throw new Error("Entered email does not match your account.");
-  }
+    //  Verify that the email matches the logged-in user's email
+    if (user.email !== email) {
+        res.status(401);
+        throw new Error("Entered email does not match your account.");
+    }
 
-  // Verify the user's password
-  const isPasswordCorrect = await user.checkPassword(password);
-  if (!isPasswordCorrect) {
-    res.status(401);
-    throw new Error("Incorrect password.");
-  }
+    // Verify the user's password
+    const isPasswordCorrect = await user.checkPassword(password);
+    if (!isPasswordCorrect) {
+        res.status(401);
+        throw new Error("Incorrect password.");
+    }
 
-  // Check if a seller account already exists for this user
-  const existingSeller = await Seller.findOne({ userId });
-  if (existingSeller) {
-    res.status(400);
-    throw new Error("Seller account already exists for this user.");
-  }
+    // Check if a seller account already exists for this user
+    const existingSeller = await Seller.findOne({ userId });
+    if (existingSeller) {
+        res.status(400);
+        throw new Error("Seller account already exists for this user.");
+    }
 
-  // Update user role to "seller"
-  user.role = "seller";
+    // Update user role to "seller"
+    user.role = "seller";
 
-  // Save the updated user to the database
-  const savedUser = await user.save();
+    // Save the updated user to the database
+    const savedUser = await user.save();
 
-  // Convert the user object to plain JS and remove the password before sending response
-  const userObj = savedUser.toObject();
-  delete userObj.password;
+    // Convert the user object to plain JS and remove the password before sending response
+    const userObj = savedUser.toObject();
+    delete userObj.password;
 
-  // Create a new seller record in the database
-  const newSeller = await Seller.create({
-    userId,
-    shopName,
-    bio,
-    address,
-  });
+    // Create a new seller record in the database
+    const newSeller = await Seller.create({
+        userId,
+        shopName,
+        bio,
+        address,
+    });
 
-  // Send a success response with created seller and updated user data
-  res.status(201).json({
-    message: "Seller account created successfully",
-    userData: userObj,
-    sellerData: newSeller,
-  });
+    // Send a success response with created seller and updated user data
+    res.status(201).json({
+        message: "Seller account created successfully",
+        userData: userObj,
+        sellerData: newSeller,
+    });
 });
-
-
-
-
-
-
-
-
-
-
-
 
 // @route   GET /api/v1/seller/profile
 // @access  Private (Seller/Admin only)
 export const getSellerProfileController = asyncHandler(async (req, res) => {
     //  Get seller info from request (added by isAuthSeller middleware)
-    const user = req.user.userId || {};
- console.log('seller control',user)
+    const userId = req.user.userId || {};
+
     //  If seller data not found in request (edge case)
-    if (!user) {
+    if (!userId) {
         res.status(404);
         throw new Error("Seller info missing in request");
     }
 
     //  Fetch complete seller details from DB (excluding password)
-    const seller = await Seller.findById(user).select("-password");
+    const seller = await Seller.findOne({userId:userId}).select("-password");
+    console.log("sellerInfo",seller)
 
     //  If seller not found in database
     if (!seller) {
@@ -106,8 +94,7 @@ export const getSellerProfileController = asyncHandler(async (req, res) => {
     // Return seller profile
     res.status(200).json({
         success: true,
-        message: `${seller.role}`,
-        seller,
+        sellerData:seller,
     });
 });
 
@@ -117,13 +104,13 @@ export const getSellerProfileController = asyncHandler(async (req, res) => {
 
 export const updateMySellerProfileController = asyncHandler(async (req, res) => {
     //  Get logged-in seller from request (set by isAuthSeller middleware)
-    const seller = req.user.userId;
+    const userId = req.user.userId;
 
     //  Update fields if provided
     const { name, email, shopName, bio, address, gstNumber, password, profileImage, coverImage } = req.body || {};
 
     //  Check if seller exists
-    const existSeller = await Seller.findOne({ _id: seller });
+    const existSeller = await Seller.findOne({ userId: userId });
 
     if (!existSeller) {
         res.status(404);
@@ -162,15 +149,17 @@ export const updateMySellerProfileController = asyncHandler(async (req, res) => 
     });
 });
 
+
+
 // @desc    Permanently delete logged-in seller's account
 // @route   DELETE /api//v1/seller
 // @access  Private
 export const deleteMySellerAccountController = asyncHandler(async (req, res) => {
     //  Get logged-in user ID from auth middleware
-    const sellerId = req.user?.userId;
+    const userId = req.user?.userId;
 
     //  Try deleting the seller from DB
-    const deletedSeller = await Seller.findByIdAndDelete(sellerId);
+   const deletedSeller = await Seller.findOneAndDelete({userId });
 
     //  If not found, throw error
     if (!deletedSeller) {
