@@ -17,7 +17,7 @@ const router=Router()
 //auth Allusers router
 router.use('/auth',authRouter);
 //user router
-router.use('/user/profile',userRouter);
+router.use('/user',userRouter);
 // seller router
 router.use('/seller',sellerRouter);
 //admin router

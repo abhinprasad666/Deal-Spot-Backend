@@ -3,7 +3,7 @@ import User from "../models/userModel.js";
 import cloudinary from "../config/cloudinary.js";
 
 // @desc   Get logged-in user's profile
-// @route   GET /api/v1/users/profile
+// @route   GET /api/v1/users
 // @access  Private
 export const getMyProfileController = asyncHandler(async (req, res) => {
     //  Get user info from request (added by isAuthUser middleware)
@@ -20,18 +20,16 @@ export const getMyProfileController = asyncHandler(async (req, res) => {
 });
 
 // @desc    Update logged-in user's profile
-// @route   PUT /api/v1/users/update
+// @route   PUT /api/v1/users
 // @access  Private
 export const updateMyProfileController = asyncHandler(async (req, res) => {
     //  Get logged-in user from request (set by isAuthRoute middleware)
     const user = req.user.userId || {};
-    const file=req.file.path
-    console.log("file...",file)
-    //  Update fields if provided
-    const { name, email, password, } = req.body || {};
+
+    const { name, email, password } = req.body || {};
 
     //  Check if user exists
-    const existUser = await User.findOne({_id: user });
+    const existUser = await User.findOne({ _id: user });
 
     if (!existUser) {
         res.status(404);
@@ -47,18 +45,10 @@ export const updateMyProfileController = asyncHandler(async (req, res) => {
         await existUser.checkPassword(password);
         existUser.password = password; // this will trigger pre('save') middleware
     }
-    // Upload an image
-     let uploadResult = await cloudinary .uploader
-       .upload(file,)
-       .catch((error) => {
-           throw new Error("Error in Cloudinary uploader",error)
-       });
-
-     let image=uploadResult.secure_url
 
     existUser.name = name ? name : existUser.name;
     existUser.email = email ? email : existUser.email;
-    existUser.profilePic = image ? image: existUser.profilePic;
+    existUser.profilePic = image ? image : existUser.profilePic;
 
     //  Save updated user
     const updatedUser = await existUser.save();
@@ -73,9 +63,8 @@ export const updateMyProfileController = asyncHandler(async (req, res) => {
     });
 });
 
-
 // @desc    Permanently delete logged-in user's account
-// @route   DELETE /api//v1/users/delete
+// @route   DELETE /api//v1/users
 // @access  Private
 export const deleteMyAccountController = asyncHandler(async (req, res) => {
     //  Get logged-in user ID from auth middleware
@@ -95,4 +84,51 @@ export const deleteMyAccountController = asyncHandler(async (req, res) => {
 
     //  Send confirmation response
     res.status(200).json({ message: "Account permanently deleted." });
+});
+
+/// @route   POST /api/v1/upload/dp
+// @desc    Upload and update user's profile picture on Cloudinary
+// @access  Private (Authenticated users)
+export const uploadProfilePic = asyncHandler(async (req, res) => {
+    //  Get authenticated user from request (added by middleware)
+    const user = req.user || {};
+    console.log("user", user);
+
+    //  Check if user is authenticated
+    if (!user) {
+        res.status(401);
+        throw new Error("Unauthorized. Please log in to access this resource.");
+    }
+
+    // Check if user exists in DB
+    const existUser = await User.findById(user.userId);
+    if (!existUser) {
+        res.status(404);
+        throw new Error("User not found");
+    }
+
+    // Get image file path from multer
+    const file = req.file?.path;
+    if (!file) {
+        res.status(400);
+        throw new Error("Image file is required");
+    }
+
+    //  Upload image to Cloudinary
+    const uploadResult = await cloudinary.uploader.upload(file).catch((error) => {
+        throw new Error("Error uploading to Cloudinary: " + error.message);
+    });
+
+    //  Save image URL to user's profilePic field
+    existUser.profilePic = uploadResult.secure_url;
+
+    //  Remove password from response for security
+    existUser.password = null;
+
+    //  Send success response
+    res.status(200).json({
+        success: true,
+        message: "Profile picture uploaded successfully.",
+        existUser,
+    });
 });

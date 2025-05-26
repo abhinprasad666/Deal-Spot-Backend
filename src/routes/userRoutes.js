@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { deleteMyAccountController, getMyProfileController, updateMyProfileController } from "../controllers/userController.js";
+import { deleteMyAccountController, getMyProfileController, updateMyProfileController, uploadProfilePic } from "../controllers/userController.js";
 import { protectRoute } from "../middlewares/protectRoute.js";
-import { runValidation, validateUpdate } from "../middlewares/validationMiddlewares/userValidatioinMiddleware.js";
 import { upload } from "../middlewares/multer.js";
+import { runValidation, validateUpdate } from "../middlewares/validationMiddlewares/userValidation.js";
 
 
 
@@ -13,18 +13,21 @@ import { upload } from "../middlewares/multer.js";
 const userRouter=Router()
 
 // get Profile
-// api/v1/user/profile
+// api/v1/user
 userRouter.get('/',protectRoute,getMyProfileController)
 
 //update my profile
-// api/v1/user/profle
-userRouter.put('/',protectRoute,validateUpdate,runValidation,upload.single("image"),updateMyProfileController)
+// api/v1/user
+userRouter.put('/',protectRoute,validateUpdate,runValidation,updateMyProfileController)
 
-// api/v1/user/profile
+// api/v1/user
 //delete my account
 userRouter.delete('/',protectRoute,deleteMyAccountController)
 
-
+// @route   POST /api/v1/upload/dp
+// @desc    Upload an image to Cloudinary
+// @access  Private (Authenticated users)
+userRouter.post("/upload/dp", protectRoute,upload.single("image"),uploadProfilePic);
 
 
 

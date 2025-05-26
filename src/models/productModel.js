@@ -2,12 +2,13 @@ import { Schema, model } from "mongoose";
 
 const productSchema = new Schema(
     {
-        seller: {
+        sellerId: {
             type: Schema.Types.ObjectId,
             ref: "Seller",
             required: true,
+            unique:true
         },
-        name: {
+        title: {
             type: String,
             required: [true, "Product name is required"],
             trim: true,
@@ -37,7 +38,7 @@ const productSchema = new Schema(
             trim: true,
             default: "Unbrand",
         },
-        countInStock: {
+        stock: {
             type: Number,
             required: true,
             min: 0,

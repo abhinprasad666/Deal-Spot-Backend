@@ -1,12 +1,12 @@
 //create product 
-import { body } from "express-validator";
+import { body,validationResult } from "express-validator";
 
 export const validateCreateProduct = [
-    body("name")
+    body("title")
         .notEmpty()
-        .withMessage("Product name is required")
+        .withMessage("Product title is required")
         .isLength({ max: 100 })
-        .withMessage("Product name must not exceed 100 characters"),
+        .withMessage("Product title must not exceed 100 characters"),
 
     body("description")
         .notEmpty()
@@ -20,10 +20,10 @@ export const validateCreateProduct = [
         .isFloat({ min: 0 })
         .withMessage("Price must be a positive number"),
 
-    body("countInStock")
+    body("stock")
         .notEmpty()
         .withMessage("Count in stock is required")
-        .isInt({ min: 0 })
+        .isInt({ min: 1 })
         .withMessage("Count in stock must be a non-negative integer"),
 
     body("brand")
@@ -39,10 +39,14 @@ export const validateCreateProduct = [
     body("isFeatured")
         .optional()
         .isBoolean()
-        .withMessage("isFeatured must be true or false"),
-
-    body("image")
-        .optional()
-        .isString()
-        .withMessage("Image must be a string URL"),
+        .withMessage("isFeatured must be true or false")
+    
 ];
+
+export const runValidation = (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+    next();
+};

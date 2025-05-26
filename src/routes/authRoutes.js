@@ -4,7 +4,7 @@ import {
     runValidation,
     validateLogin,
     validateSignup,
-} from "../middlewares/validationMiddlewares/userValidatioinMiddleware.js";
+} from "../middlewares/validationMiddlewares/userValidation.js";
 
 const authRouter = Router();
 

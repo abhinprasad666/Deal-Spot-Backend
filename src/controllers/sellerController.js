@@ -1,6 +1,8 @@
 import asyncHandler from "express-async-handler";
 import Seller from "../models/sellerModel.js";
 import User from "../models/userModel.js";
+import cloudinary from "../config/cloudinary.js";
+
 
 // @desc    Create Seller Account (with email/password verification)
 // @route   POST /api/v1/seller
@@ -172,4 +174,96 @@ export const deleteMySellerAccountController = asyncHandler(async (req, res) => 
 
     //  Send confirmation response
     res.status(200).json({ message: "Account permanently deleted." });
+});
+
+
+// @route   POST /api/v1/seller/upload/dp
+// @desc    Upload and update seller's profile picture
+// @access  Private (Only authenticated sellers)
+export const uploadSellerProfilePic = asyncHandler(async (req, res) => {
+
+  // Get the authenticated user from request
+  const user = req.user;
+  if (!user) {
+    res.status(401);
+    throw new Error("Unauthorized. Please log in.");
+  }
+
+
+  //  Find the seller in DB
+  const seller = await Seller.findOne({userId:user.userId});
+  if (!seller) {
+    res.status(404);
+    throw new Error("User not found.");
+  }
+
+  //  Get image file from multer
+  const file = req.file?.path;
+  if (!file) {
+    res.status(400);
+    throw new Error("Image file is required.");
+  }
+
+  //  Upload to Cloudinary
+  const uploadResult = await cloudinary.uploader.upload(file)
+  .catch((error) => {
+    throw new Error("Cloudinary upload failed: " + error.message);
+  });
+
+  // Update seller's profileImage field
+  seller.profilePic= uploadResult.secure_url;
+  await seller.save();
+
+  // Send response
+  res.status(200).json({
+    success: true,
+    message: " profile picture uploaded successfully.",
+    seller,
+  });
+});
+
+
+// @route   POST /api/v1/seller/upload/dp
+// @desc    Upload and update seller's profile picture
+// @access  Private (Only authenticated sellers)
+export const uploadSellerCoverImage = asyncHandler(async (req, res) => {
+
+  // Get the authenticated user from request
+  const user = req.user;
+  if (!user) {
+    res.status(401);
+    throw new Error("Unauthorized. Please log in.");
+  }
+
+
+  //  Find the seller in DB
+  const seller = await Seller.findOne({userId:user.userId});
+  if (!seller) {
+    res.status(404);
+    throw new Error("User not found.");
+  }
+
+  //  Get image file from multer
+  const file = req.file?.path;
+  if (!file) {
+    res.status(400);
+    throw new Error("Image file is required.");
+  }
+
+  //  Upload to Cloudinary
+  const uploadResult = await cloudinary.uploader.upload(file)
+  .catch((error) => {
+    throw new Error("Cloudinary upload failed: " + error.message);
+  });
+
+  // Update seller's profileImage field
+  seller.coverImage= uploadResult.secure_url;
+  await seller.save();
+
+  // Send response
+  res.status(200).json({
+    success: true,
+    message: " profile picture uploaded successfully.",
+    seller,
+  });
 });
