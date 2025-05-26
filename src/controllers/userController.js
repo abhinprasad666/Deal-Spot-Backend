@@ -1,5 +1,6 @@
 import asyncHandler from "express-async-handler";
 import User from "../models/userModel.js";
+import cloudinary from "../config/cloudinary.js";
 
 // @desc   Get logged-in user's profile
 // @route   GET /api/v1/users/profile
@@ -24,9 +25,10 @@ export const getMyProfileController = asyncHandler(async (req, res) => {
 export const updateMyProfileController = asyncHandler(async (req, res) => {
     //  Get logged-in user from request (set by isAuthRoute middleware)
     const user = req.user.userId || {};
-
+    const file=req.file.path
+    console.log("file...",file)
     //  Update fields if provided
-    const { name, email, password, profilePic } = req.body || {};
+    const { name, email, password, } = req.body || {};
 
     //  Check if user exists
     const existUser = await User.findOne({_id: user });
@@ -45,10 +47,18 @@ export const updateMyProfileController = asyncHandler(async (req, res) => {
         await existUser.checkPassword(password);
         existUser.password = password; // this will trigger pre('save') middleware
     }
+    // Upload an image
+     let uploadResult = await cloudinary .uploader
+       .upload(file,)
+       .catch((error) => {
+           throw new Error("Error in Cloudinary uploader",error)
+       });
+
+     let image=uploadResult.secure_url
 
     existUser.name = name ? name : existUser.name;
     existUser.email = email ? email : existUser.email;
-    existUser.profilePic = profilePic ? profilePic : existUser.profilePic;
+    existUser.profilePic = image ? image: existUser.profilePic;
 
     //  Save updated user
     const updatedUser = await existUser.save();

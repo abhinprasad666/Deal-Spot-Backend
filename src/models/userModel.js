@@ -6,14 +6,14 @@ const userSchema = new Schema(
         name: {
             type: String,
             required: [true, "Name required!"],
-            trim:true
+            trim: true,
         },
         email: {
             type: String,
             required: [true, "Email required!"],
             unique: true,
-            trim:true,
-            lowercase: true
+            trim: true,
+            lowercase: true,
         },
         password: {
             type: String,
@@ -21,20 +21,20 @@ const userSchema = new Schema(
             minLength: [8, "Password must be at least 8 characters"],
             maxLength: [128, "Password cannot exceed 128 characters"],
         },
-         role: {
+        role: {
             type: String,
-            enum: ["customer","seller", "admin"],
+            enum: ["customer", "seller", "admin"],
             default: "customer",
         },
         profilePic: {
             type: String,
-            defalut: "",
+            default: "",
         },
-        status:{
-            type:'String',
-            enum:["active","blocked","deleted"],
-            default:"active"
-        } ,
+        status: {
+            type: "String",
+            enum: ["active", "blocked", "deleted"],
+            default: "active",
+        },
         statusUpdatedAt: {
             type: Date,
             default: Date.now,
