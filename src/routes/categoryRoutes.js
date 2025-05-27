@@ -20,12 +20,7 @@ categoryRouter.post("/", protectRoute, isAdmin, upload.single("image"), createCa
 // @route   PUT /api/v1/categories/:id
 // @desc    Update existing category (Admin only)
 // @access  Private (Admin)
-categoryRouter.put("/:id", protectRoute, isAdmin, upload.single("image"), updateCategory);
-
-// @route   DELETE /api/v1/categories/:id
-// @desc    Delete a category by ID (Admin only)
-// @access  Private (Admin)
-categoryRouter.delete("/:id", protectRoute, isAdmin, deleteCategory);
+categoryRouter.put("/:id", protectRoute,isAdmin, upload.single("image"), updateCategory);
 
 // @route   GET /api/v1/categories
 // @desc    Get all active categories (Public)
@@ -37,7 +32,10 @@ categoryRouter.get("/", getAllCategories);
 // @access  Public
 categoryRouter.get("/:id", getCategoryById);
 
-
+// @route   DELETE /api/v1/categories/:id
+// @desc    Delete a category by ID (Admin only)
+// @access  Private (Admin)
+categoryRouter.delete("/:id", protectRoute, isAdmin, deleteCategory);
 
 
 
