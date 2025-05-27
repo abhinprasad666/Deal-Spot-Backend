@@ -114,13 +114,24 @@ export const uploadProfilePic = asyncHandler(async (req, res) => {
         throw new Error("Image file is required");
     }
 
-    //  Upload image to Cloudinary
-    const uploadResult = await cloudinary.uploader.upload(file).catch((error) => {
-        throw new Error("Error uploading to Cloudinary: " + error.message);
-    });
+      // Upload image to Cloudinary if file provided
+      let imageUrl = "";
+      if (file) {
+        try {
+          const uploadResult = await cloudinary.uploader.upload(file, {
+            folder: "dealspot/categories",
+            resource_type: "image",
+          });
+          imageUrl = uploadResult.secure_url;
+        } catch (error) {
+          res.status(500);
+          throw new Error("Image upload failed. Please try again.");
+        }
+      }
+    
 
     //  Save image URL to user's profilePic field
-    existUser.profilePic = uploadResult.secure_url;
+    existUser.profilePic = imageUrl || existUser.profilePic;
 
     //  Remove password from response for security
     existUser.password = null;

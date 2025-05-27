@@ -57,7 +57,7 @@ export const registerController = asyncHandler(async (req, res) => {
 
     // Create a new seller record in the database
     const newSeller = await Seller.create({
-        userId,
+        userId:user._id,
         shopName,
         bio,
         address,
@@ -204,14 +204,24 @@ export const uploadSellerProfilePic = asyncHandler(async (req, res) => {
     throw new Error("Image file is required.");
   }
 
-  //  Upload to Cloudinary
-  const uploadResult = await cloudinary.uploader.upload(file)
-  .catch((error) => {
-    throw new Error("Cloudinary upload failed: " + error.message);
-  });
+  // Upload image to Cloudinary if file provided
+  let imageUrl = "";
+  if (file) {
+    try {
+      const uploadedResult = await cloudinary.uploader.upload(file, {
+        folder: "dealspot/seller/dp",
+        resource_type: "image",
+      });
+      imageUrl = uploadedResult.secure_url;
+    } catch (error) {
+      res.status(500);
+      throw new Error("Image upload failed. Please try again.");
+    }
+  }
+
 
   // Update seller's profileImage field
-  seller.profilePic= uploadResult.secure_url;
+  seller.profilePic= imageUrl || seller.profilePic;
   await seller.save();
 
   // Send response
@@ -250,14 +260,23 @@ export const uploadSellerCoverImage = asyncHandler(async (req, res) => {
     throw new Error("Image file is required.");
   }
 
-  //  Upload to Cloudinary
-  const uploadResult = await cloudinary.uploader.upload(file)
-  .catch((error) => {
-    throw new Error("Cloudinary upload failed: " + error.message);
-  });
+  // Upload image to Cloudinary if file provided
+  let imageUrl = "";
+  if (file) {
+    try {
+      const uploadedResult = await cloudinary.uploader.upload(file, {
+        folder: "dealspot/seller/coverImg",
+        resource_type: "image",
+      });
+      imageUrl = uploadedResult.secure_url;
+    } catch (error) {
+      res.status(500);
+      throw new Error("Image upload failed. Please try again.");
+    }
+  }
 
   // Update seller's profileImage field
-  seller.coverImage= uploadResult.secure_url;
+  seller.coverImage= imageUrl || seller.coverImage;
   await seller.save();
 
   // Send response

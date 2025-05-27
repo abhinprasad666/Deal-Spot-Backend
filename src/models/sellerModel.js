@@ -42,7 +42,7 @@ const sellerSchema = new Schema(
         },
         isVerified: {
             type: Boolean,
-            default: false,
+            default: true,
         },
         status: {
             type: String,

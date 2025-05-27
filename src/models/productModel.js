@@ -2,9 +2,9 @@ import { Schema, model } from "mongoose";
 
 const productSchema = new Schema(
     {
-        sellerId: {
+        seller: {
             type: Schema.Types.ObjectId,
-            ref: "Seller",
+            ref: "User",
             required: true,
             unique:true
         },
@@ -13,6 +13,7 @@ const productSchema = new Schema(
             required: [true, "Product name is required"],
             trim: true,
             maxlength: 100,
+            unique:true
         },
         description: {
             type: String,
@@ -25,6 +26,15 @@ const productSchema = new Schema(
             required: true,
             min: [0, "Product price is required"],
         },
+        offerPrice:{
+            type: Number,
+            
+        },
+        // size:{
+        //        type: String,
+        //     enum: ["S", "M", "L","XL","XXL",""],
+        //     default: "",
+        // },
         image: {
             type: String,
             default: "",
