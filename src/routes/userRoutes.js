@@ -1,11 +1,8 @@
 import { Router } from "express";
-import { deleteMyAccountController, getMyProfileController, updateMyProfileController, uploadProfilePic } from "../controllers/userController.js";
+import { deleteMyAccountController,getMyProfileController,updateMyProfileController, uploadProfilePic } from "../controllers/userController.js";
 import { protectRoute } from "../middlewares/protectRoute.js";
 import { upload } from "../middlewares/multer.js";
 import { runValidation, validateUpdate } from "../middlewares/validationMiddlewares/userValidation.js";
-
-
-
 
 
 

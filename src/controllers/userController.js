@@ -2,6 +2,9 @@ import asyncHandler from "express-async-handler";
 import User from "../models/userModel.js";
 import cloudinary from "../config/cloudinary.js";
 
+
+
+
 // @desc   Get logged-in user's profile
 // @route   GET /api/v1/users
 // @access  Private
@@ -143,3 +146,7 @@ export const uploadProfilePic = asyncHandler(async (req, res) => {
         existUser,
     });
 });
+
+
+
+

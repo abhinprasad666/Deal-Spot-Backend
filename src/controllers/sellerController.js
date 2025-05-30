@@ -3,7 +3,6 @@ import Seller from "../models/sellerModel.js";
 import User from "../models/userModel.js";
 import cloudinary from "../config/cloudinary.js";
 
-
 // @desc    Create Seller Account (with email/password verification)
 // @route   POST /api/v1/seller
 // @access  Private
@@ -57,7 +56,7 @@ export const registerController = asyncHandler(async (req, res) => {
 
     // Create a new seller record in the database
     const newSeller = await Seller.create({
-        userId:user._id,
+        userId: user._id,
         shopName,
         bio,
         address,
@@ -84,8 +83,8 @@ export const getSellerProfileController = asyncHandler(async (req, res) => {
     }
 
     //  Fetch complete seller details from DB (excluding password)
-    const seller = await Seller.findOne({userId:userId}).select("-password");
-    console.log("sellerInfo",seller)
+    const seller = await Seller.findOne({ userId: userId }).select("-password");
+    console.log("sellerInfo", seller);
 
     //  If seller not found in database
     if (!seller) {
@@ -96,7 +95,7 @@ export const getSellerProfileController = asyncHandler(async (req, res) => {
     // Return seller profile
     res.status(200).json({
         success: true,
-        sellerData:seller,
+        sellerData: seller,
     });
 });
 
@@ -151,8 +150,6 @@ export const updateMySellerProfileController = asyncHandler(async (req, res) => 
     });
 });
 
-
-
 // @desc    Permanently delete logged-in seller's account
 // @route   DELETE /api//v1/seller
 // @access  Private
@@ -161,7 +158,7 @@ export const deleteMySellerAccountController = asyncHandler(async (req, res) => 
     const userId = req.user?.userId;
 
     //  Try deleting the seller from DB
-   const deletedSeller = await Seller.findOneAndDelete({userId });
+    const deletedSeller = await Seller.findOneAndDelete({ userId });
 
     //  If not found, throw error
     if (!deletedSeller) {
@@ -176,113 +173,106 @@ export const deleteMySellerAccountController = asyncHandler(async (req, res) => 
     res.status(200).json({ message: "Account permanently deleted." });
 });
 
-
 // @route   POST /api/v1/seller/upload/dp
 // @desc    Upload and update seller's profile picture
 // @access  Private (Only authenticated sellers)
 export const uploadSellerProfilePic = asyncHandler(async (req, res) => {
-
-  // Get the authenticated user from request
-  const user = req.user;
-  if (!user) {
-    res.status(401);
-    throw new Error("Unauthorized. Please log in.");
-  }
-
-
-  //  Find the seller in DB
-  const seller = await Seller.findOne({userId:user.userId});
-  if (!seller) {
-    res.status(404);
-    throw new Error("User not found.");
-  }
-
-  //  Get image file from multer
-  const file = req.file?.path;
-  if (!file) {
-    res.status(400);
-    throw new Error("Image file is required.");
-  }
-
-  // Upload image to Cloudinary if file provided
-  let imageUrl = "";
-  if (file) {
-    try {
-      const uploadedResult = await cloudinary.uploader.upload(file, {
-        folder: "dealspot/seller/dp",
-        resource_type: "image",
-      });
-      imageUrl = uploadedResult.secure_url;
-    } catch (error) {
-      res.status(500);
-      throw new Error("Image upload failed. Please try again.");
+    // Get the authenticated user from request
+    const user = req.user;
+    if (!user) {
+        res.status(401);
+        throw new Error("Unauthorized. Please log in.");
     }
-  }
 
+    //  Find the seller in DB
+    const seller = await Seller.findOne({ userId: user.userId });
+    if (!seller) {
+        res.status(404);
+        throw new Error("User not found.");
+    }
 
-  // Update seller's profileImage field
-  seller.profilePic= imageUrl || seller.profilePic;
-  await seller.save();
+    //  Get image file from multer
+    const file = req.file?.path;
+    if (!file) {
+        res.status(400);
+        throw new Error("Image file is required.");
+    }
 
-  // Send response
-  res.status(200).json({
-    success: true,
-    message: " profile picture uploaded successfully.",
-    seller,
-  });
+    // Upload image to Cloudinary if file provided
+    let imageUrl = "";
+    if (file) {
+        try {
+            const uploadedResult = await cloudinary.uploader.upload(file, {
+                folder: "dealspot/seller/dp",
+                resource_type: "image",
+            });
+            imageUrl = uploadedResult.secure_url;
+        } catch (error) {
+            res.status(500);
+            throw new Error("Image upload failed. Please try again.");
+        }
+    }
+
+    // Update seller's profileImage field
+    seller.profilePic = imageUrl || seller.profilePic;
+    await seller.save();
+
+    // Send response
+    res.status(200).json({
+        success: true,
+        message: " profile picture uploaded successfully.",
+        seller,
+    });
 });
-
 
 // @route   POST /api/v1/seller/upload/dp
 // @desc    Upload and update seller's profile picture
 // @access  Private (Only authenticated sellers)
 export const uploadSellerCoverImage = asyncHandler(async (req, res) => {
-
-  // Get the authenticated user from request
-  const user = req.user;
-  if (!user) {
-    res.status(401);
-    throw new Error("Unauthorized. Please log in.");
-  }
-
-
-  //  Find the seller in DB
-  const seller = await Seller.findOne({userId:user.userId});
-  if (!seller) {
-    res.status(404);
-    throw new Error("User not found.");
-  }
-
-  //  Get image file from multer
-  const file = req.file?.path;
-  if (!file) {
-    res.status(400);
-    throw new Error("Image file is required.");
-  }
-
-  // Upload image to Cloudinary if file provided
-  let imageUrl = "";
-  if (file) {
-    try {
-      const uploadedResult = await cloudinary.uploader.upload(file, {
-        folder: "dealspot/seller/coverImg",
-        resource_type: "image",
-      });
-      imageUrl = uploadedResult.secure_url;
-    } catch (error) {
-      res.status(500);
-      throw new Error("Image upload failed. Please try again.");
+    // Get the authenticated user from request
+    const user = req.user;
+    if (!user) {
+        res.status(401);
+        throw new Error("Unauthorized. Please log in.");
     }
-  }
 
-  // Update seller's profileImage field
-  seller.coverImage= imageUrl || seller.coverImage;
-  await seller.save();
+    //  Find the seller in DB
+    const seller = await Seller.findOne({ userId: user.userId });
+    if (!seller) {
+        res.status(404);
+        throw new Error("User not found.");
+    }
 
-  // Send response
-  res.status(200).json({
-    success: true,
-    message: " profile picture uploaded successfully.",
-    seller,
-  });
+    //  Get image file from multer
+    const file = req.file?.path;
+    if (!file) {
+        res.status(400);
+        throw new Error("Image file is required.");
+    }
+
+    // Upload image to Cloudinary if file provided
+    let imageUrl = "";
+    if (file) {
+        try {
+            const uploadedResult = await cloudinary.uploader.upload(file, {
+                folder: "dealspot/seller/coverImg",
+                resource_type: "image",
+            });
+            imageUrl = uploadedResult.secure_url;
+        } catch (error) {
+            res.status(500);
+            throw new Error("Image upload failed. Please try again.");
+        }
+    }
+
+    // Update seller's profileImage field
+    seller.coverImage = imageUrl || seller.coverImage;
+    await seller.save();
+
+    // Send response
+    res.status(200).json({
+        success: true,
+        message: " profile picture uploaded successfully.",
+        seller,
+    });
 });

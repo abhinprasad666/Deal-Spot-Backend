@@ -40,7 +40,7 @@ export const createCategory = asyncHandler(async (req, res) => {
     }
   }
 
-  // 📦 Create and save new category
+  //  Create and save new category
   const category = await Category.create({
     name: name,
     description: description,

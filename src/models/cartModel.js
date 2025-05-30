@@ -1,11 +1,16 @@
 import { Schema ,model} from "mongoose";
 
+
 // Sub-schema for items
 const cartItemSchema = new Schema({
     productId: {
-        type: mongoose.Schema.Types.ObjectId,
+        type:Schema.Types.ObjectId,
         ref: "Product",
         required: true,
+    },
+    price:{
+         type:Number,
+         default:0
     },
     quantity: {
         type: Number,
@@ -22,6 +27,8 @@ const cartSchema = new Schema({
         required: true,
     },
     items: [cartItemSchema], // using sub-schema here
+
+
     totalPrice: {
         type: Number,
         default: 0,
@@ -31,6 +38,15 @@ const cartSchema = new Schema({
         default: Date.now,
     },
 });
+
+
+
+cartSchema.methods.totalPrice = function(){
+    this.totalPrice=this.items.reduce((total,items)=>total+items.cartItemSchema.price,0)
+}
+
+
+
 // Exporting the Cart model
 const Cart= model("Cart", cartSchema);
 

@@ -21,6 +21,12 @@ const userSchema = new Schema(
             minLength: [8, "Password must be at least 8 characters"],
             maxLength: [128, "Password cannot exceed 128 characters"],
         },
+        resetPasswordOtp:{
+                    type:String
+        },
+       resetPasswordExpire:{
+            type:Date
+        },
         role: {
             type: String,
             enum: ["customer", "seller", "admin"],
