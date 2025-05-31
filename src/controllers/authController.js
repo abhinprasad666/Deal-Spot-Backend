@@ -2,7 +2,7 @@ import asyncHandler from "express-async-handler";
 import User from "../models/userModel.js";
 import { generateToken } from "../utils/generateToken.js";
 import { setAuthCookie } from "../utils/cookieHandler.js";
-import sendPsswordResetLink from "../utils/resetPassword.js";
+import sendPasswordResetLink from "../utils/resetPassword.js";
 import { generateOTP } from "../utils/generateOTP.js";
 import bcrypt from "bcrypt";
 
@@ -106,47 +106,42 @@ export const logoutController = asyncHandler(async (req, res) => {
 // @desc    Send OTP to user's email to initiate password reset
 // @access  Public
 
+
+// @route   POST /api/v1/auth/forgotPassword
+// @desc    Send OTP to user's email to initiate password reset
+// @access  Public
 export const forgotPassword = asyncHandler(async (req, res) => {
-    const { email } = req.body;
+  const { email } = req.body;
 
-    // Check if the user exists with the given email
-    const user = await User.findOne({ email });
-    if (!user) {
-        res.status(404);
-        throw new Error("Invalid email address.");
-    }
+  // Check if user exists
+  const user = await User.findOne({ email });
+  if (!user) {
+    res.status(404);
+    throw new Error("Invalid email address.");
+  }
 
-    // Generate OTP and hash it
-    const OTP = generateOTP();
-    const hashedOTP = await bcrypt.hash(OTP, 10);
+  // Generate OTP and hash it
+  const OTP = generateOTP();
+  const hashedOTP = await bcrypt.hash(OTP, 10);
 
-    // Store hashed OTP and expiry time (10 minutes) in the user's record
-    user.resetPasswordOtp = hashedOTP;
-    user.resetPasswordExpire = Date.now() + 10 * 60 * 1000;
+  user.resetPasswordOtp = hashedOTP;
+  user.resetPasswordExpire = Date.now() + 10 * 60 * 1000;
+  await user.save();
 
-    await user.save();
+  // Send OTP via Resend
+  const response = await sendPasswordResetLink(user.email, OTP, user.name);
+  if (response.error) {
+    res.status(500);
+    throw new Error("Failed to send OTP. Please try again later.");
+  }
 
-    // Send OTP to user's email
-    const verificationEmailResponse = await sendPsswordResetLink(email, OTP, user.name);
+  const token = generateToken(user._id);
+  setAuthCookie(res, token, 10 * 60 * 1000); // 10 mins
 
-    // If email sending fails
-    if (verificationEmailResponse.error) {
-        res.status(500);
-        throw new Error("Failed to send OTP. Please try again later.");
-    }
-
-    // Generate a temporary JWT token
-    const token = generateToken(user._id);
-
-    // Set auth cookie (valid for 10 minutes)
-    const maxAge = 10 * 60 * 1000;
-    setAuthCookie(res, token, maxAge);
-
-    // Send success response
-    res.status(200).json({
-        success:true,
-        message: "OTP sent successfully. Please check your email.",
-    });
+  res.status(200).json({
+    success: true,
+    message: "OTP sent successfully. Please check your email.",
+  });
 });
 
 // @route   POST api/v1/auth/veryfyOtp

@@ -25,7 +25,7 @@ const orderSchema = new Schema({
   },
 
   // List of ordered items
-  items: [orderItemSchema],
+  cartItems: [orderItemSchema],
 
   // Shipping details
   shippingAddress: {

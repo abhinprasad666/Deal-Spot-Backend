@@ -51,7 +51,7 @@ const productSchema = new Schema(
         stock: {
             type: Number,
             required: true,
-            min: 0,
+            min: 1,
             default: 0,
         },
         rating: {
@@ -63,7 +63,6 @@ const productSchema = new Schema(
         numReviews: {
             type: Number,
             default: 0,
-            min: 0,
         },
         reviews: [
             {

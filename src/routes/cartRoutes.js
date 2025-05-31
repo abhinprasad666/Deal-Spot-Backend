@@ -1,17 +1,40 @@
 import { Router } from "express";
-
-
-
-
-
+import {
+  addToCart,
+  removeFromCart,
+  updateCartItemQuantity,
+  getUserCart,
+  clearCart,
+} from '../controllers/cartController.js';
 const cartRouter=Router()
+import { protectRoute } from "../middlewares/protectRoute.js";
 
 
 
+// @route   POST /api/v1/cart/add
+// @desc    Add a product to the cart
+// @access  Private
+cartRouter.post('/add',  protectRoute , addToCart);
 
+// @route   DELETE /api/v1/cart/remove/:productId
+// @desc    Remove a product from the cart
+// @access  Private
+cartRouter.delete('/remove/:productId',  protectRoute , removeFromCart);
 
+// @route   PUT /api/v1/cart/update/:productId
+// @desc    Update quantity of a product in the cart
+// @access  Private
+cartRouter.put('/update/:productId',  protectRoute , updateCartItemQuantity);
 
+// @route   GET /api/v1/cart
+// @desc    Get current user's cart
+// @access  Private
+cartRouter.get('/',protectRoute , getUserCart);
 
+// @route   DELETE /api/v1/cart/clear
+// @desc    Clear entire cart
+// @access  Private
+cartRouter.delete('/clear',  protectRoute , clearCart);
 
 
 export default cartRouter
