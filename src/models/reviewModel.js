@@ -22,7 +22,7 @@ const reviewSchema = new Schema(
       type: String,
       required: [true, "Please add a review comment"],
       trim: true,
-      minlength: [5, "Comment must be at least 5 characters"],
+      minlength: [3, "Comment must be at least 5 characters"],
       maxlength: [1000, "Comment must not exceed 1000 characters"],
     },
     product: {

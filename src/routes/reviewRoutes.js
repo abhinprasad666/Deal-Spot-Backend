@@ -1,25 +1,24 @@
 import { Router } from "express";
-
-
-
+import { addReview, deleteReview, getProductReviews } from "../controllers/reviewController.js";
+import { protectRoute } from "../middlewares/protectRoute.js";
 
 
 const reviewRouter=Router()
 
+// @desc    Add review to product
+// @route   POST /api/v1/reviews/:productId
+// @access  Private
+reviewRouter.post("/:productId", protectRoute, addReview);
 
+// @desc    Get all reviews for a product
+// @route   GET /api/v1/reviews/:productId
+// @access  Public
+reviewRouter.get("/:productId", getProductReviews);
 
-// // Add a new review and get all reviews for a product
-// reviewRouter.route("/:productId")
-//       .post(protect, addReview)  // POST /api/reviews/:productId
-//       .get(getProductReviews);   // GET  /api/reviews/:productId
-
-// // Delete a review by ID
-// reviewRouter.route("/delete/:id")
-//   .delete(protect, deleteReview);  // DELETE /api/reviews/delete/:id
-
-
-
-
+// @desc    Delete a review
+// @route   DELETE /api/v1/reviews/:reviewId
+// @access  Private
+reviewRouter.delete("/delete/:reviewId", protectRoute, deleteReview);
 
 
 
