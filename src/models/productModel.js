@@ -26,8 +26,9 @@ const productSchema = new Schema(
             required: true,
             min: [0, "Product price is required"],
         },
-        offerPrice:{
+        discount:{
             type: Number,
+            default:0
             
         },
         // size:{

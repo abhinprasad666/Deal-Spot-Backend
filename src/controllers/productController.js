@@ -52,7 +52,7 @@ export const createProduct = asyncHandler(async (req, res) => {
     }
 
     // Destructure product fields from request body
-    const { title, description, price, category, brand, stock, isFeatured, offerPrice } = req.body;
+    const { title, description, price, category, brand, stock, isFeatured, offerPrice,discount} = req.body;
 
     // Validate category ID presence and format
     if (!category && !mongoose.isValidObjectId(category)) {
@@ -94,6 +94,7 @@ export const createProduct = asyncHandler(async (req, res) => {
         stock,
         isFeatured,
         offerPrice: offerPrice || 0,
+        discount:discount || 0
     });
 
     // Now populate both fields
