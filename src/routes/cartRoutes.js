@@ -2,9 +2,10 @@ import { Router } from "express";
 import {
   addToCart,
   removeFromCart,
-  updateCartItemQuantity,
   getUserCart,
   clearCart,
+  incrementCartItem,
+  decrementCartItem,
 } from '../controllers/cartController.js';
 const cartRouter=Router()
 import { protectRoute } from "../middlewares/protectRoute.js";
@@ -21,10 +22,16 @@ cartRouter.post('/add',  protectRoute , addToCart);
 // @access  Private
 cartRouter.delete('/remove/:productId',  protectRoute , removeFromCart);
 
-// @route   PUT /api/v1/cart/update/:productId
-// @desc    Update quantity of a product in the cart
+// @desc    Increment quantity of a product in cart
+// @route   PUT /api/v1/cart/increment/:productId
 // @access  Private
-cartRouter.put('/update/:productId',  protectRoute , updateCartItemQuantity);
+cartRouter.put("/increment/:productId", protectRoute, incrementCartItem);
+
+// @desc    Decrement quantity of a product in cart
+// @route   PUT /api/v1/cart/decrement/:productId
+// @access  Private
+cartRouter.put("/decrement/:productId", protectRoute, decrementCartItem);
+
 
 // @route   GET /api/v1/cart
 // @desc    Get current user's cart
