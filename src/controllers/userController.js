@@ -26,45 +26,45 @@ export const getMyProfileController = asyncHandler(async (req, res) => {
 // @route   PUT /api/v1/users
 // @access  Private
 export const updateMyProfileController = asyncHandler(async (req, res) => {
-    //  Get logged-in user from request (set by isAuthRoute middleware)
-    const user = req.user.userId || {};
+    // Get user ID from middleware (set in isAuth middleware)
+    const userId = req.user.userId;
 
     const { name, email, password } = req.body || {};
 
-    //  Check if user exists
-    const existUser = await User.findOne({ _id: user });
+    // Find the user
+    const existUser = await User.findById(userId);
 
     if (!existUser) {
         res.status(404);
         throw new Error("User not found");
     }
 
-    // If password is provided, update it (will be hashed by pre-save hook)
+    // Update password only if provided and valid
     if (password) {
         if (password.length < 8) {
             res.status(400);
             throw new Error("Password must be at least 8 characters");
         }
-        await existUser.checkPassword(password);
-        existUser.password = password; // this will trigger pre('save') middleware
+        existUser.password = password; // Pre-save hook will hash it
     }
 
-    existUser.name = name ? name : existUser.name;
-    existUser.email = email ? email : existUser.email;
-    existUser.profilePic = image ? image : existUser.profilePic;
+    // Update name and email if provided
+    existUser.name = name || existUser.name;
+    existUser.email = email || existUser.email;
 
-    //  Save updated user
+    // Save updated user
     const updatedUser = await existUser.save();
 
-    updatedUser.password = null; //  Remove password from response for security
+    // Avoid sending password in response
+    updatedUser.password = null;
 
-    // Return updated user data (without password)
     res.status(200).json({
         success: true,
         message: "Profile Updated",
         updatedUser,
     });
 });
+
 
 // @desc    Permanently delete logged-in user's account
 // @route   DELETE /api//v1/users

@@ -19,7 +19,7 @@ const authRouter = Router();
 // @desc    Register a new user and log them in with a JWT cookie
 // @access  Public
 
-authRouter.post("/singup", validateSignup, runValidation, signupController);
+authRouter.post("/signup", validateSignup, runValidation, signupController);
 
 // @route   POST /api/v1/auth/login
 // @desc    Authenticate user and set JWT token in HTTP-only cookie

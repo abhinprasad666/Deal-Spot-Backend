@@ -275,7 +275,7 @@ export const getMyProducts = asyncHandler(async (req, res) => {
     const currentUser = req.user;
 
     // Check if current user exists and is a seller
-    if (!currentUser || currentUser.role !== "seller") {
+    if (!currentUser || currentUser.role !== "seller" || currentUser.role !== "admin") {
         res.status(403);
         throw new Error("Only sellers can access this resource");
     }

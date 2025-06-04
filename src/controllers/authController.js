@@ -206,7 +206,7 @@ export const resetPassword = asyncHandler(async (req, res) => {
 
     // Update password and clear reset token fields
     user.password = password;
-    user.resetPasswordToken = undefined;
+    user. resetPasswordOtp = undefined;
     user.resetPasswordExpire = undefined;
     await user.save();
 
