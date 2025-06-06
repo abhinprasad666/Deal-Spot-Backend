@@ -5,8 +5,7 @@ import DB_Connect from "./config/DB_Connect.js";
 import router from "./routes/index.js";
 import cookieParser from "cookie-parser";
 import morgan from "morgan";
-
-
+import cors from 'cors';
 
 // Load environment variables from .env file
 config();
@@ -14,21 +13,43 @@ config();
 const app = express();
 const PORT = process.env.PORT || 5001;
 
-// HTTP request logger middleware for debugging and monitoring
-// Logs incoming requests (method, URL, status code, response time, etc.)
-app.use(morgan());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
-app.use('/api/v1',router)
+// CORS configuration to allow requests from the frontend
+const corsOptions = {
+  origin: process.env.FRONTEND_URL || "", // Frontend URL
+  credentials: true, // Allow cookies and auth headers
+};
+app.use(cors(corsOptions)); // Apply CORS settings
 
-// Middleware to handle 404 - Not Found
+// HTTP request logger for debugging and monitoring
+app.use(morgan());
+
+// Middleware to parse incoming JSON requests
+app.use(express.json());
+
+// Middleware to parse URL-encoded data (form submissions)
+app.use(express.urlencoded({ extended: true }));
+
+// Middleware to parse cookies from the request headers
+app.use(cookieParser());
+
+/* ---------------------------------------------------
+   Handle favicon.ico requests to avoid 500 error
+   This prevents console error when browser tries
+   to load favicon but it's not served by backend
+----------------------------------------------------- */
+app.get('/favicon.ico', (req, res) => res.status(204).end());
+
+// Main API routes prefix
+app.use('/api/v1', router);
+
+// Handle 404 - Route not found
 app.use(notFound);
-// General error handling middleware
+
+// Global error handling middleware
 app.use(errorHandler);
 
-
+// Start the server and connect to the database
 app.listen(PORT, async () => {
-    console.log(`Server running on port ${PORT}`);
-     DB_Connect(); // Ensure DB connection on startup
+    console.log(`🚀 Server running on port ${PORT}`);
+    DB_Connect();
 });
