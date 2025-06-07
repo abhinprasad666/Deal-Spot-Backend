@@ -8,6 +8,7 @@ import cartRouter from "./cartRoutes.js";
 import paymentRouter from "./paymentRoutes.js";
 import sellerRouter from "./sellerRoutes.js";
 import authRouter from "./authRoutes.js";
+import sliderRouter from "./sliderRoutes.js";
 
 
 
@@ -32,6 +33,8 @@ router.use('/category',categoryRouter);
 router.use('/cart',cartRouter);
 //payment router
 router.use('/payment',paymentRouter)
+//slider router
+router.use('/slider',sliderRouter)
 
 
 
