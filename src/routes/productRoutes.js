@@ -20,7 +20,7 @@ productRouter.put('/:id',protectRoute,isSellerOrAdmin,upload.single("image"),upd
 // @desc    Get all products (Admin or public)
 // @route   GET /api/v1/products
 // @access  Public
-productRouter.get('/',protectRoute,getAllProducts);
+productRouter.get('/',getAllProducts);
 
 // @desc    Get a single product by ID
 // @route   GET /api/v1/products/:id

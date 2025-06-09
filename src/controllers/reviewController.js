@@ -7,52 +7,53 @@ import User from "../models/userModel.js";
 // @desc    Add a review to a product
 // @route   POST /api/v1/reviews/:productId
 // @access  Private
+
 export const addReview = asyncHandler(async (req, res) => {
     const { rating, comment } = req.body;
     const productId = req.params.productId;
     const userId = req.user.userId;
-    console.log("Received comment:", comment);
-    // Validate productId
+
+    // ✅ Validate productId
     if (!mongoose.Types.ObjectId.isValid(productId)) {
         res.status(400);
         throw new Error("Invalid product ID");
     }
 
-    // Validate rating
+    // ✅ Validate rating
     if (!rating || rating < 1 || rating > 5) {
         res.status(400);
         throw new Error("Rating must be a number between 1 and 5");
     }
 
-    // Validate comment
-    if (!comment || comment.trim().length < 3 || comment.trim().length > 1000) {
+    // ✅ Validate comment
+    if (!comment || typeof comment !== "string" || comment.trim().length < 3 || comment.trim().length > 1000) {
         res.status(400);
-        throw new Error("Comment must be between 3 and 1000 characters");
+        throw new Error("Comment must be a string between 3 and 1000 characters");
     }
 
-    // Check if product exists
+    // ✅ Check if product exists
     const product = await Product.findById(productId);
     if (!product) {
         res.status(404);
         throw new Error("Product not found");
     }
 
-    // Check if user already reviewed
+    // ✅ Check if user already reviewed
     const alreadyReviewed = await Review.findOne({ product: productId, user: userId });
     if (alreadyReviewed) {
         res.status(400);
         throw new Error("You have already reviewed this product");
     }
 
-    // Get user name
+    // ✅ Get user info
     const user = await User.findById(userId).select("name");
     if (!user) {
         res.status(404);
         throw new Error("User not found");
     }
 
-    // Create review
-    const review = await Review.create({
+    // ✅ Create review
+    const newReview = await Review.create({
         user: userId,
         name: user.name,
         rating,
@@ -60,11 +61,27 @@ export const addReview = asyncHandler(async (req, res) => {
         product: productId,
     });
 
-    // Populate user and product for response
-    const populatedReview = await Review.findById(review._id)
+    // ✅ Push to product reviews array
+    product.reviews.push(newReview._id);
+    await product.save();
 
-    res.status(201).json({ message: "Review added", review: populatedReview });
+    // ✅ Update product ratings
+    await Product.updateRating(productId);
+
+    // ✅ Populate product title in review response
+    const populatedReview = await newReview.populate({
+        path: "product",
+        select: "title"
+    });
+
+    // ✅ Send response
+    res.status(201).json({
+        message: "Review added successfully",
+        review: populatedReview,
+    });
 });
+
+
 
 // @desc    Get all reviews for a specific product
 // @route   GET /api/v1/reviews/:productId
@@ -89,20 +106,47 @@ export const getProductReviews = asyncHandler(async (req, res) => {
 // @route   DELETE /api/v1/reviews/delete/:reviewId
 // @access  Private
 export const deleteReview = asyncHandler(async (req, res) => {
-    const review = await Review.findById(req.params.reviewId);
+    const reviewId = req.params.reviewId;
+    const userId = req.user.userId;
 
+    // Validate reviewId
+    if (!mongoose.Types.ObjectId.isValid(reviewId)) {
+        res.status(400);
+        throw new Error("Invalid review ID");
+    }
+
+    // Find the review
+    const review = await Review.findById(reviewId);
     if (!review) {
         res.status(404);
         throw new Error("Review not found");
     }
 
-    // Only the reviewer or admin can delete
-    if (review.user.toString() !== req.user.userId.toString() && req.user.role !== "admin") {
+    //  Check permission (reviewer or admin only)
+    if (review.user.toString() !== userId && req.user.role !== "admin") {
         res.status(403);
         throw new Error("Not authorized to delete this review");
     }
 
+    // Get product before deleting review
+    const product = await Product.findById(review.product);
+    if (!product) {
+        res.status(404);
+        throw new Error("Related product not found");
+    }
+
+    //  Delete the review
     await review.deleteOne();
 
+    //  Remove review ID from product.reviews array
+    product.reviews = product.reviews.filter(
+        (r) => r.toString() !== review._id.toString()
+    );
+    await product.save();
+
+    //  Update rating and numOfReviews
+    await Product.updateRating(product._id);
+
+    //  Send response
     res.status(200).json({ message: "Review deleted successfully" });
 });
