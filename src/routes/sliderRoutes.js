@@ -2,7 +2,7 @@ import { Router } from "express";
 import { protectRoute } from "../middlewares/protectRoute.js";
 import { isAdmin } from "../middlewares/roleMiddleware.js";
 import { createSlide, deleteSlide, getAllSlides, updateSlide } from "../controllers/sliderController.js";
-
+import { upload } from "../middlewares/multer.js";
 
 
 
@@ -16,7 +16,7 @@ sliderRouter.get('/', getAllSlides);
 
 
 // Admin routes - create, update, delete slides
-sliderRouter.post('/', protectRoute, isAdmin, createSlide);
+sliderRouter.post('/', protectRoute, isAdmin,upload.single("image"), createSlide);
 sliderRouter.put('/:id', protectRoute, isAdmin, updateSlide);
 sliderRouter.delete('/:id', protectRoute, isAdmin, deleteSlide);
 

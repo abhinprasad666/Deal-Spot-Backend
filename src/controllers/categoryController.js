@@ -9,7 +9,7 @@ import mongoose from "mongoose";
 // @route   POST /api/v1/category
 // @access  Private/Admin
 export const createCategory = asyncHandler(async (req, res) => {
-  const { name, description } = req.body;
+  const { name, description,labal, } = req.body || {};
   const file = req.file?.path;
 
   // Validation: Check required fields
@@ -45,6 +45,7 @@ export const createCategory = asyncHandler(async (req, res) => {
     name: name,
     description: description,
     image: imageUrl || "",
+    labal:labal || ""
   });
 
   res.status(201).json({

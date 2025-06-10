@@ -25,7 +25,7 @@ productRouter.get('/',getAllProducts);
 // @desc    Get a single product by ID
 // @route   GET /api/v1/products/:id
 // @access  Public
-productRouter.get('/single/:id',protectRoute,getSingleProduct);
+productRouter.get('/single/:id',getSingleProduct);
 
 // @desc    Get featured products
 // @route   GET /api/v1/products/featured

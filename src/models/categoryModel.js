@@ -2,7 +2,6 @@ import { Schema, model } from "mongoose";
 
 const categorySchema = new Schema(
     {
-        
         name: {
             type: String,
             required: [true, "Category name is required"],
@@ -16,6 +15,11 @@ const categorySchema = new Schema(
             trim: true,
             maxlength: [500, "Description must not exceed 500 characters"],
         },
+        labal: {
+            type: String,
+            default: "",
+        },
+
         image: {
             type: String,
             default: "",

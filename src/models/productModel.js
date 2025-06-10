@@ -31,6 +31,10 @@ const productSchema = new Schema(
             type: Number,
             default: 0,
         },
+         shippingCharge: {
+            type: Number,
+            default: 0,
+        },
         image: {
             type: String,
             default: "",
