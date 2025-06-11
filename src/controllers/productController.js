@@ -52,7 +52,7 @@ export const createProduct = asyncHandler(async (req, res) => {
     }
 
     // Destructure product fields from request body
-    const { title, description, price, category, brand, stock, isFeatured, offerPrice,discount} = req.body;
+    const { title, description, price, category, brand, stock, isFeatured, offerPrice, discount } = req.body;
 
     // Validate category ID presence and format
     if (!category && !mongoose.isValidObjectId(category)) {
@@ -94,7 +94,7 @@ export const createProduct = asyncHandler(async (req, res) => {
         stock,
         isFeatured,
         offerPrice: offerPrice || 0,
-        discount:discount || 0
+        discount: discount || 0,
     });
 
     // Now populate both fields
@@ -205,10 +205,33 @@ export const updateProduct = asyncHandler(async (req, res) => {
 // @desc    Get all products (Admin or public)
 // @route   GET /api/v1/products
 // @access  Public
+
 export const getAllProducts = asyncHandler(async (req, res) => {
-    const products = await Product.find().populate([
-        { path: "category", select: "name description image" },
-        { path: "seller", select: "name" },
+    const keyword = req.query.keyword;
+
+    const searchStage = keyword
+        ? {
+              $match: {
+                  $or: [
+                      { title: { $regex: keyword, $options: "i" } },
+                      { brand: { $regex: keyword, $options: "i" } },
+                      { "category.name": { $regex: keyword, $options: "i" } },
+                  ],
+              },
+          }
+        : { $match: {} };
+
+    const products = await Product.aggregate([
+        {
+            $lookup: {
+                from: "categories",
+                localField: "category",
+                foreignField: "_id",
+                as: "category",
+            },
+        },
+        { $unwind: "$category" },
+        searchStage
     ]);
 
     res.status(200).json({
@@ -218,6 +241,7 @@ export const getAllProducts = asyncHandler(async (req, res) => {
         products,
     });
 });
+
 
 // @desc    Get a single product by ID
 // @route   GET /api/v1/products/:id
@@ -240,11 +264,9 @@ export const getSingleProduct = asyncHandler(async (req, res) => {
         throw new Error("Product not found");
     }
 
-
-
     res.status(200).json({
-        success:true,
-        product
+        success: true,
+        product,
     });
 });
 
@@ -267,7 +289,6 @@ export const getFeaturedProducts = asyncHandler(async (req, res) => {
         featuredProducts,
     });
 });
-
 
 // @desc    Get products created by the logged-in seller
 // @route   GET /api/v1/products/my
@@ -299,7 +320,6 @@ export const getMyProducts = asyncHandler(async (req, res) => {
         products,
     });
 });
-
 
 // @desc    Delete a product (Only Admin or Seller who owns it)
 // @route   DELETE /api/v1/products/:id
@@ -339,4 +359,3 @@ export const deleteProduct = asyncHandler(async (req, res) => {
         deletedProduct: deletedProductName,
     });
 });
-

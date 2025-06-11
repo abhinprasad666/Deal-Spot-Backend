@@ -34,7 +34,7 @@ router.use('/cart',cartRouter);
 //payment router
 router.use('/payment',paymentRouter)
 //slider router
-router.use('/slider',sliderRouter)
+router.use('/slide',sliderRouter)
 
 
 
