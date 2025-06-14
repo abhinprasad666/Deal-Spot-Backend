@@ -1,26 +1,27 @@
 import asyncHandler from "express-async-handler";
 import User from "../models/userModel.js";
 import cloudinary from "../config/cloudinary.js";
+import bcrypt  from 'bcrypt';
 
 
-
-
-// @desc   Get logged-in user's profile
+// @desc    Get logged-in user's profile
 // @route   GET /api/v1/users
 // @access  Private
 export const getMyProfileController = asyncHandler(async (req, res) => {
-    //  Get user info from request (added by isAuthUser middleware)
-    const user = req.user || {};
+    // req.user.id comes from isAuthUser middleware (after token verification)
+    const user = await User.findById(req.user.userId).select("-password");
 
-    //  If user not found, throw error
     if (!user) {
         res.status(404);
         throw new Error("User not found");
     }
 
-    // Send user data as JSON (without password)
-    res.status(200).json(user);
+    res.status(200).json({
+        success: true,
+        user,
+    });
 });
+
 
 // @desc    Update logged-in user's profile
 // @route   PUT /api/v1/users
@@ -29,7 +30,7 @@ export const updateMyProfileController = asyncHandler(async (req, res) => {
     // Get user ID from middleware (set in isAuth middleware)
     const userId = req.user.userId;
 
-    const { name, email, password } = req.body || {};
+    const { name, email, newPassword,currentPassword } = req.body || {};
 
     // Find the user
     const existUser = await User.findById(userId);
@@ -40,13 +41,23 @@ export const updateMyProfileController = asyncHandler(async (req, res) => {
     }
 
     // Update password only if provided and valid
-    if (password) {
-        if (password.length < 8) {
+    if (newPassword) {
+        if (newPassword.length < 8) {
             res.status(400);
             throw new Error("Password must be at least 8 characters");
         }
-        existUser.password = password; // Pre-save hook will hash it
+       
+    } const isMatch = await bcrypt.compare(currentPassword,existUser.password);
+    console.log("compare password",isMatch)
+   
+    if (!isMatch) {
+        res.status(404);
+      if (!isMatch) {
+    res.status(400);
+    throw new Error("The current password you entered is incorrect. Please try again.");
+}
     }
+   existUser.password = newPassword; // Pre-save hook will hash it
 
     // Update name and email if provided
     existUser.name = name || existUser.name;
@@ -135,6 +146,8 @@ export const uploadProfilePic = asyncHandler(async (req, res) => {
 
     //  Save image URL to user's profilePic field
     existUser.profilePic = imageUrl || existUser.profilePic;
+
+    await existUser.save()
 
     //  Remove password from response for security
     existUser.password = null;

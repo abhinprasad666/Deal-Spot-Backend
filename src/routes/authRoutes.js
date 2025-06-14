@@ -34,7 +34,7 @@ authRouter.post("/logout", logoutController);
 // @route   POST /api/v1/auth/forgotPassword
 // @desc    Send OTP to user's email to initiate password reset
 // @access  Public
-authRouter.post("/forgotPassword", forgotPassword);
+authRouter.post("/forgot-password", forgotPassword);
 
 // @route   POST api/v1/auth/veryfyOtp
 // @desc    Verify OTP during password reset process
@@ -44,6 +44,6 @@ authRouter.post("/verifyOtp", check_OTP, otpVerifyConroller);
 // @route   POST /api/v1/auth/resetPassword
 // @desc    Reset and update the password for an authenticated user
 // @access  Private (Only authenticated users)
-authRouter.put("/resetPassword", check_OTP, resetPassword);
+authRouter.put("/reset-password", check_OTP, resetPassword);
 
 export default authRouter;

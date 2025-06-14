@@ -112,12 +112,12 @@ export const logoutController = asyncHandler(async (req, res) => {
 // @access  Public
 export const forgotPassword = asyncHandler(async (req, res) => {
   const { email } = req.body;
-
+console.log("user email",email)
   // Check if user exists
   const user = await User.findOne({ email });
   if (!user) {
     res.status(404);
-    throw new Error("Invalid email address.");
+    throw new Error("The email address you entered is not registered with us. Please check and try again.");
   }
 
   // Generate OTP and hash it
@@ -125,7 +125,7 @@ export const forgotPassword = asyncHandler(async (req, res) => {
   const hashedOTP = await bcrypt.hash(OTP, 10);
 
   user.resetPasswordOtp = hashedOTP;
-  user.resetPasswordExpire = Date.now() + 10 * 60 * 1000;
+  user.resetPasswordExpire = Date.now() + 6 * 60 * 1000;
   await user.save();
 
   // Send OTP via Resend
@@ -140,6 +140,7 @@ export const forgotPassword = asyncHandler(async (req, res) => {
 
   res.status(200).json({
     success: true,
+    email:email,
     message: "OTP sent successfully. Please check your email.",
   });
 });

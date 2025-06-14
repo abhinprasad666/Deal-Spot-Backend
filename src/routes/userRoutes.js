@@ -11,7 +11,7 @@ const userRouter=Router()
 
 // get Profile
 // api/v1/user
-userRouter.get('/',protectRoute,getMyProfileController)
+userRouter.get('/me',protectRoute,getMyProfileController)
 
 //update my profile
 // api/v1/user
@@ -24,7 +24,7 @@ userRouter.delete('/',protectRoute,deleteMyAccountController)
 // @route   POST /api/v1/upload/dp
 // @desc    Upload an image to Cloudinary
 // @access  Private (Authenticated users)
-userRouter.post("/upload/dp", protectRoute,upload.single("image"),uploadProfilePic);
+userRouter.put("/upload/dp", protectRoute,upload.single("image"),uploadProfilePic);
 
 
 

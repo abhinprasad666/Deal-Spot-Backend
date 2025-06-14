@@ -33,6 +33,7 @@ export const createRazorpayOrder = asyncHandler(async (req, res) => {
         status: "Pending",
         razorpayOrderId: razorpayOrder.id, // Save Razorpay order ID
         orderedAt: new Date(),
+        statusHistory:"pending"
     });
 
     // Send Razorpay order to frontend
@@ -60,7 +61,7 @@ export const verifyPayment = asyncHandler(async (req, res) => {
     if (expectedSignature !== razorpay_signature) {
         return res.status(400).json({
             success: false,
-            message: "Invalid payment signature.",
+            error: "Invalid payment signature.",
         });
     }
 
