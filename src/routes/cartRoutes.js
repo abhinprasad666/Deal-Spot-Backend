@@ -15,12 +15,12 @@ import { protectRoute } from "../middlewares/protectRoute.js";
 // @route   POST /api/v1/cart/add
 // @desc    Add a product to the cart
 // @access  Private
-cartRouter.post('/add',  protectRoute , addToCart);
+cartRouter.post('/add',protectRoute , addToCart);
 
 // @route   DELETE /api/v1/cart/remove/:productId
 // @desc    Remove a product from the cart
 // @access  Private
-cartRouter.delete('/remove/:productId',  protectRoute , removeFromCart);
+cartRouter.delete('/delete/:productId',  protectRoute , removeFromCart);
 
 // @desc    Increment quantity of a product in cart
 // @route   PUT /api/v1/cart/increment/:productId

@@ -80,7 +80,7 @@ export const loginController = asyncHandler(async (req, res) => {
 
     // If login fails
     res.status(401);
-    throw new Error("Invalid email or password.");
+    throw new Error("Incorrect email or password. Please try again.");
 });
 
 // @route   POST /api/v1/auth/logout

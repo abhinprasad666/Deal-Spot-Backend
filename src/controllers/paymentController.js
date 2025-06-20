@@ -33,7 +33,7 @@ export const createRazorpayOrder = asyncHandler(async (req, res) => {
         status: "Pending",
         razorpayOrderId: razorpayOrder.id, // Save Razorpay order ID
         orderedAt: new Date(),
-        statusHistory:"pending"
+        statusHistory:[{status:"Pending"},{ changedAt:new Date()}]
     });
 
     // Send Razorpay order to frontend

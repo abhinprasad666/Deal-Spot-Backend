@@ -13,46 +13,46 @@ export const addReview = asyncHandler(async (req, res) => {
     const productId = req.params.productId;
     const userId = req.user.userId;
 
-    // ✅ Validate productId
+    //Validate productId
     if (!mongoose.Types.ObjectId.isValid(productId)) {
         res.status(400);
         throw new Error("Invalid product ID");
     }
 
-    // ✅ Validate rating
+    // Validate rating
     if (!rating || rating < 1 || rating > 5) {
         res.status(400);
         throw new Error("Rating must be a number between 1 and 5");
     }
 
-    // ✅ Validate comment
+    // Validate comment
     if (!comment || typeof comment !== "string" || comment.trim().length < 3 || comment.trim().length > 1000) {
         res.status(400);
         throw new Error("Comment must be a string between 3 and 1000 characters");
     }
 
-    // ✅ Check if product exists
+    // Check if product exists
     const product = await Product.findById(productId);
     if (!product) {
         res.status(404);
         throw new Error("Product not found");
     }
 
-    // ✅ Check if user already reviewed
+    // Check if user already reviewed
     const alreadyReviewed = await Review.findOne({ product: productId, user: userId });
     if (alreadyReviewed) {
         res.status(400);
         throw new Error("You have already reviewed this product");
     }
 
-    // ✅ Get user info
+    // Get user info
     const user = await User.findById(userId).select("name");
     if (!user) {
         res.status(404);
         throw new Error("User not found");
     }
 
-    // ✅ Create review
+    // Create review
     const newReview = await Review.create({
         user: userId,
         name: user.name,
@@ -61,20 +61,20 @@ export const addReview = asyncHandler(async (req, res) => {
         product: productId,
     });
 
-    // ✅ Push to product reviews array
+    // Push to product reviews array
     product.reviews.push(newReview._id);
     await product.save();
 
-    // ✅ Update product ratings
+    // Update product ratings
     await Product.updateRating(productId);
 
-    // ✅ Populate product title in review response
+    // Populate product title in review response
     const populatedReview = await newReview.populate({
         path: "product",
         select: "title"
     });
 
-    // ✅ Send response
+    // Send response
     res.status(201).json({
         message: "Review added successfully",
         review: populatedReview,
@@ -99,7 +99,9 @@ export const getProductReviews = asyncHandler(async (req, res) => {
     .populate("product", "title") // Make sure 'title' exists
     .sort({ createdAt: -1 });
 
-  res.status(200).json(reviews);
+  res.status(200).json(
+   { success:true,
+     reviews});
 });
 
 // @desc    Delete a specific review (only by user or admin)

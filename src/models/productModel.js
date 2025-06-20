@@ -31,7 +31,7 @@ const productSchema = new Schema(
             type: Number,
             default: 0,
         },
-         shippingCharge: {
+        shippingCharge: {
             type: Number,
             default: 0,
         },
@@ -51,8 +51,6 @@ const productSchema = new Schema(
         stock: {
             type: Number,
             required: true,
-            min: 1,
-            default: 0,
         },
         rating: {
             type: Number,
@@ -75,6 +73,11 @@ const productSchema = new Schema(
             type: Boolean,
             default: false,
         },
+        isAddCart: {
+            type: String,
+            enum: ["Add to Cart", "Added to Cart"],
+            default: "Add to Cart",
+        },
     },
     { timestamps: true }
 );
@@ -85,8 +88,7 @@ productSchema.statics.updateRating = async function (productId) {
 
     const numOfReviews = reviews.length;
 
-    const avgRating =
-        reviews.reduce((acc, review) => acc + review.rating, 0) / numOfReviews || 0;
+    const avgRating = reviews.reduce((acc, review) => acc + review.rating, 0) / numOfReviews || 0;
 
     await this.findByIdAndUpdate(productId, {
         numOfReviews,

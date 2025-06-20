@@ -1,8 +1,7 @@
 import asyncHandler from "express-async-handler";
 import User from "../models/userModel.js";
 import cloudinary from "../config/cloudinary.js";
-import bcrypt  from 'bcrypt';
-
+import bcrypt from "bcrypt";
 
 // @desc    Get logged-in user's profile
 // @route   GET /api/v1/users
@@ -22,15 +21,14 @@ export const getMyProfileController = asyncHandler(async (req, res) => {
     });
 });
 
-
 // @desc    Update logged-in user's profile
-// @route   PUT /api/v1/users
+// @route   PUT /api/v1/user
 // @access  Private
 export const updateMyProfileController = asyncHandler(async (req, res) => {
     // Get user ID from middleware (set in isAuth middleware)
     const userId = req.user.userId;
 
-    const { name, email, newPassword,currentPassword } = req.body || {};
+    const { name, email, newPassword, currentPassword } = req.body || {};
 
     // Find the user
     const existUser = await User.findById(userId);
@@ -46,18 +44,20 @@ export const updateMyProfileController = asyncHandler(async (req, res) => {
             res.status(400);
             throw new Error("Password must be at least 8 characters");
         }
-       
-    } const isMatch = await bcrypt.compare(currentPassword,existUser.password);
-    console.log("compare password",isMatch)
-   
-    if (!isMatch) {
+         const isMatch = await bcrypt.compare(currentPassword, existUser.password);
+
+          if (!isMatch) {
         res.status(404);
-      if (!isMatch) {
-    res.status(400);
-    throw new Error("The current password you entered is incorrect. Please try again.");
-}
+        if (!isMatch) {
+            res.status(400);
+            throw new Error("The current password you entered is incorrect. Please try again.");
+        }
     }
-   existUser.password = newPassword; // Pre-save hook will hash it
+    
+    existUser.password = newPassword; // Pre-save hook will hash it
+        
+    }
+
 
     // Update name and email if provided
     existUser.name = name || existUser.name;
@@ -71,11 +71,10 @@ export const updateMyProfileController = asyncHandler(async (req, res) => {
 
     res.status(200).json({
         success: true,
-        message: "Profile Updated",
+        message: "Your profile has been updated successfully.",
         updatedUser,
     });
 });
-
 
 // @desc    Permanently delete logged-in user's account
 // @route   DELETE /api//v1/users
@@ -128,26 +127,25 @@ export const uploadProfilePic = asyncHandler(async (req, res) => {
         throw new Error("Image file is required");
     }
 
-      // Upload image to Cloudinary if file provided
-      let imageUrl = "";
-      if (file) {
+    // Upload image to Cloudinary if file provided
+    let imageUrl = "";
+    if (file) {
         try {
-          const uploadResult = await cloudinary.uploader.upload(file, {
-            folder: "dealspot/categories",
-            resource_type: "image",
-          });
-          imageUrl = uploadResult.secure_url;
+            const uploadResult = await cloudinary.uploader.upload(file, {
+                folder: "dealspot/categories",
+                resource_type: "image",
+            });
+            imageUrl = uploadResult.secure_url;
         } catch (error) {
-          res.status(500);
-          throw new Error("Image upload failed. Please try again.");
+            res.status(500);
+            throw new Error("Image upload failed. Please try again.");
         }
-      }
-    
+    }
 
     //  Save image URL to user's profilePic field
     existUser.profilePic = imageUrl || existUser.profilePic;
 
-    await existUser.save()
+    await existUser.save();
 
     //  Remove password from response for security
     existUser.password = null;
@@ -159,7 +157,3 @@ export const uploadProfilePic = asyncHandler(async (req, res) => {
         existUser,
     });
 });
-
-
-
-
