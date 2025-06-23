@@ -3,40 +3,74 @@ import Payment from "../models/PaymentModel.js";
 import crypto from "crypto";
 import Order from "../models/orderModel.js";
 import razorpay from "../config/razorpay.js";
+import Cart from "../models/cartModel.js";
+import Product from "../models/productModel.js";
+
 
 // @desc    Create Razorpay order
 // @route   POST /api/v1/payment/create-order
 // @access  Private
+// @desc    Create Razorpay order
+// @route   POST /api/v1/payment/create-order
+// @access  Private
+
 export const createRazorpayOrder = asyncHandler(async (req, res) => {
-    const { amount, cartItems, shippingAddress, paymentMethod } = req.body;
-    //  const {userId}=req.user.userId || {}
+    const userId = req.user.userId;
+
+    const { amount, shippingAddress, paymentMethod } = req.body;
+
     if (!amount || amount <= 0) {
         res.status(400);
         throw new Error("Invalid or missing amount");
     }
 
-    // Create order in Razorpay
+    if (!shippingAddress || !paymentMethod) {
+        res.status(400);
+        throw new Error("Shipping address and payment method are required");
+    }
+
+    // Fetch the user's cart
+    const userCart = await Cart.findOne({ userId }).populate("items.productId");
+
+    if (!userCart || userCart.items.length === 0) {
+        res.status(400);
+        throw new Error("Cart is empty");
+    }
+
+    // Map cart items to Order format
+    const cartItems = userCart.items.map((item) => ({
+        productId: item.productId._id,
+        quantity: item.quantity,
+        // subtotal: item.subtotal,
+    }));
+
+    // Create Razorpay order
     const options = {
-        amount: amount * 100,
+        amount: amount * 100, // amount in paisa
         currency: "INR",
         receipt: `receipt_${Date.now()}`,
     };
     const razorpayOrder = await razorpay.orders.create(options);
 
-    // Create new order entry in MongoDB
+    // Create Order in MongoDB
     const newOrder = await Order.create({
-        userId: "68335e16c807479bb8f196d3",
-        // cartItems,
+        userId,
+        cartItems,
         shippingAddress,
         paymentMethod,
         totalPrice: amount,
         status: "Pending",
-        razorpayOrderId: razorpayOrder.id, // Save Razorpay order ID
+        razorpayOrderId: razorpayOrder.id,
         orderedAt: new Date(),
-        statusHistory:[{status:"Pending"},{ changedAt:new Date()}]
+        statusHistory: [
+            {
+                status: "Pending",
+                changedAt: new Date(),
+            },
+        ],
     });
 
-    // Send Razorpay order to frontend
+    // Send Razorpay order + Order data to frontend
     res.status(200).json({
         success: true,
         order: razorpayOrder,
@@ -47,12 +81,15 @@ export const createRazorpayOrder = asyncHandler(async (req, res) => {
 // @desc    Verify Razorpay payment and update DB
 // @route   POST /api/v1/payment/verify
 // @access  Public
+
+// Razorpay Payment Verification and Order Confirmation
 export const verifyPayment = asyncHandler(async (req, res) => {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+    const userId = req.user.userId;
 
     const secret = process.env.RAZORPAY_SECRET;
 
-    //  Validate signature
+    // Step 1: Razorpay signature verify cheyyuka
     const expectedSignature = crypto
         .createHmac("sha256", secret)
         .update(razorpay_order_id + "|" + razorpay_payment_id)
@@ -65,30 +102,52 @@ export const verifyPayment = asyncHandler(async (req, res) => {
         });
     }
 
-    //  Get the order from DB using razorpay_order_id (you must have saved it before)
+    // Step 2: Order DB-lyil ninnum fetch cheyyuka
     const orderFromDB = await Order.findOne({ razorpayOrderId: razorpay_order_id });
     if (!orderFromDB) {
-        //  Redirect to frontend failure page
-        res.redirect(`${process.env.FRONTEND_URL}/payment/failure`);
+        return res.redirect(`${process.env.FRONTEND_URL}/payment/failure`);
     }
 
-    //  Update Order status
+    // Step 3: Order status "Confirmed" aayi set cheyyuka
     orderFromDB.status = "Confirmed";
     orderFromDB.paidAt = new Date();
     await orderFromDB.save();
 
-    //  Create a Payment entry in DB
+    // Step 4: Payment record DB-il create cheyyuka
     await Payment.create({
         orderId: orderFromDB._id,
         userId: orderFromDB.userId,
         amount: orderFromDB.totalPrice,
-        paymentMethod: "onlinePayment",
+        paymentMethod: orderFromDB.paymentMethod,
         status: "Success",
         transactionId: razorpay_payment_id,
         paymentGateway: "Razorpay",
         paidAt: new Date(),
     });
 
-    //  Redirect to frontend success page
+    // Step 5: Product stock kurakkanam & isAddCart field reset cheyyanam
+    const updatePromises = orderFromDB.cartItems.map(async (item) => {
+        const product = await Product.findById(item.productId);
+        if (product) {
+            // 🔸 Stock kurakkanam
+            if (product.stock < item.quantity) {
+                console.warn(`⚠️ Stock not enough for: ${product.title}`);
+            } else {
+                product.stock -= item.quantity;
+            }
+
+            //isAddCart back to "Add to Cart" (default state)
+            product.isAddCart = "Add to Cart";
+
+            await product.save();
+        }
+    });
+
+    await Promise.all(updatePromises);
+
+    // Step 6: User cart clean cheyyuka
+    await Cart.deleteOne({ userId });
+
+    // Step 7: Success page-lek redirect cheyyuka
     res.redirect(`${process.env.FRONTEND_URL}/payment/success?reference=${razorpay_payment_id}`);
 });

@@ -7,8 +7,8 @@ import Order from "../models/orderModel";
 // @route   POST /api/v1/order
 // @access  Private
 export const createOrder = asyncHandler(async (req, res) => {
-  const { cartItems, shippingAddress, paymentMethod, totalPrice } = req.body;
-
+  const { cartItems, shippingAddress, paymentMethod, amount } = req.body;
+console.log("order iteams",cartItems,shippingAddress,paymentMethod,amount)
   // Validate input
   if (!cartItems || cartItems.length === 0) {
     res.status(400);
@@ -20,7 +20,7 @@ export const createOrder = asyncHandler(async (req, res) => {
     cartItems,
     shippingAddress,
     paymentMethod,
-    totalPrice,
+    totalPrice:amount,
   });
 
   const createdOrder = await order.save();

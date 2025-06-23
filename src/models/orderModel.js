@@ -22,15 +22,16 @@ const orderSchema = new Schema({
         required: true,
     },
 
-    // cartItems: [orderItemSchema],
+    cartItems: [orderItemSchema],
 
     shippingAddress: {
         fullName: { type: String, required: true },
         phone: { type: String, required: true },
-        address: { type: String, required: true },
+        addressLine1: { type: String, required: true },
         city: { type: String, required: true },
-        pinCode: { type: String, required: true },
+        pincode: { type: String, required: true },
         country: { type: String, required: true },
+        state: { type: String, required: true },
     },
 
     paymentMethod: {
