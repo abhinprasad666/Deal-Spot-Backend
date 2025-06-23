@@ -1,8 +1,8 @@
 import express from "express";
 import { config } from "dotenv";
-import { errorHandler, notFound } from "./middlewares/errorMiddleware.js";
-import DB_Connect from "./config/DB_Connect.js";
-import router from "./routes/index.js";
+import { errorHandler, notFound } from "./src/middlewares/errorMiddleware.js";
+import DB_Connect from "./src/config/DB_Connect.js";
+import router from "./src/routes/index.js";
 import cookieParser from "cookie-parser";
 import morgan from "morgan";
 import cors from 'cors';
@@ -50,7 +50,6 @@ app.use(errorHandler);
 
 // Start the server and connect to the database
 app.listen(PORT, async () => {
-    console.log(`🚀 Server running on port ${PORT}`);
-    console.log("Running in mode:", process.env.NODE_ENV);
+    console.log(`🚀 Server running on port ${PORT} Mode:${process.env.NODE_ENV}`);
     DB_Connect();
 });
