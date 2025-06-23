@@ -51,5 +51,6 @@ app.use(errorHandler);
 // Start the server and connect to the database
 app.listen(PORT, async () => {
     console.log(`🚀 Server running on port ${PORT}`);
+    console.log("Running in mode:", process.env.NODE_ENV);
     DB_Connect();
 });

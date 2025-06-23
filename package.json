@@ -4,12 +4,14 @@
     "description": "e-commerce-website",
     "main": "server.js",
     "type": "module",
-    "scripts": {
-        "dev": "nodemon src/server"
-    },
+   "scripts": {
+  "dev": "cross-env NODE_ENV=development nodemon src/server.js",
+  "start": "cross-env NODE_ENV=production node src/server.js"
+},
     "author": "abhinprasad",
     "license": "ISC",
     "devDependencies": {
+        "cross-env": "^7.0.3",
         "dotenv": "^16.5.0",
         "express": "^5.1.0",
         "mongoose": "^8.15.0",
