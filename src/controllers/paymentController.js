@@ -1,10 +1,12 @@
 import asyncHandler from "express-async-handler";
-import Payment from "../models/PaymentModel.js";
 import crypto from "crypto";
 import Order from "../models/orderModel.js";
 import razorpay from "../config/razorpay.js";
 import Cart from "../models/cartModel.js";
 import Product from "../models/productModel.js";
+import Payment from "../models/paymentModel.js";
+
+
 
 
 // @desc    Create Razorpay order
