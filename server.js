@@ -14,11 +14,25 @@ const app = express();
 const PORT = process.env.PORT || 5001;
 
 // CORS configuration to allow requests from the frontend
+const allowedOrigins = [
+  "http://localhost:5173",
+  process.env.FRONTEND_URL?.trim(), // ensure clean HTTPS URL
+];
+
 const corsOptions = {
-  origin: process.env.FRONTEND_URL || "", // Frontend URL
-  credentials: true, // Allow cookies and auth headers
+  origin: function (origin, callback) {
+    console.log("Origin trying to access:", origin); // for debugging
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true,
 };
-app.use(cors(corsOptions)); // Apply CORS settings
+
+
+app.use(cors(corsOptions));
 
 // HTTP request logger for debugging and monitoring
 app.use(morgan());
