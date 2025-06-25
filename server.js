@@ -5,7 +5,7 @@ import DB_Connect from "./src/config/DB_Connect.js";
 import router from "./src/routes/index.js";
 import cookieParser from "cookie-parser";
 import morgan from "morgan";
-import cors from 'cors';
+import cors from "cors";
 
 // Load environment variables from .env file
 config();
@@ -15,22 +15,21 @@ const PORT = process.env.PORT || 5001;
 
 // CORS configuration to allow requests from the frontend
 const allowedOrigins = [
-  "http://localhost:5173",
-  process.env.FRONTEND_URL?.trim(), // ensure clean HTTPS URL
+    "http://localhost:5173",
+    process.env.FRONTEND_URL?.trim(), // ensure clean HTTPS URL
 ];
 
 const corsOptions = {
-  origin: function (origin, callback) {
-    console.log("Origin trying to access:", origin); // for debugging
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
-  credentials: true,
+    origin: function (origin, callback) {
+        console.log("Origin trying to access:", origin); // for debugging
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error("Not allowed by CORS"));
+        }
+    },
+    credentials: true,
 };
-
 
 app.use(cors(corsOptions));
 
@@ -51,10 +50,10 @@ app.use(cookieParser());
    This prevents console error when browser tries
    to load favicon but it's not served by backend
 ----------------------------------------------------- */
-app.get('/favicon.ico', (req, res) => res.status(204).end());
+app.get("/favicon.ico", (req, res) => res.status(204).end());
 
 // Main API routes prefix
-app.use('/api/v1', router);
+app.use("/api/v1", router);
 
 // Handle 404 - Route not found
 app.use(notFound);
