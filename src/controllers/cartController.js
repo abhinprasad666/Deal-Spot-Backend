@@ -214,19 +214,21 @@ export const decrementCartItem = asyncHandler(async (req, res) => {
 // @access  Private
 
 export const getUserCart = asyncHandler(async (req, res) => {
-    const userId = req.user.userId;
+  const userId = req.user.userId;
 
-    const cart = await Cart.findOne({ userId })
-        .populate("userId", "name") // populate user name
-        .populate("items.productId", "title price stock image"); // populate product name + others
+  const cart = await Cart.findOne({ userId })
+    .populate("userId", "name")
+    .populate("items.productId", "title price stock image");
 
-    if (!cart) {
-        res.status(404);
-        throw new Error("Cart not found");
-    }
+  //if cart doesn't exist OR cart has 0 items
+  if (!cart || cart.items.length === 0) {
+    return res.status(200).json([]); // always send array
+  }
 
-    res.status(200).json(cart);
+  //valid cart with items
+  res.status(200).json(cart);
 });
+
 
 export const clearCart = asyncHandler(async (req, res) => {
     const userId = req.user.userId;

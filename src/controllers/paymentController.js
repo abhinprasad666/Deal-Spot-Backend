@@ -19,7 +19,7 @@ import Payment from "../models/paymentModel.js";
 export const createRazorpayOrder = asyncHandler(async (req, res) => {
     const userId = req.user.userId;
 
-    const { amount, shippingAddress, paymentMethod } = req.body;
+    const { amount,totalDiscount, shippingAddress, paymentMethod } = req.body;
 
     if (!amount || amount <= 0) {
         res.status(400);
@@ -61,6 +61,7 @@ export const createRazorpayOrder = asyncHandler(async (req, res) => {
         shippingAddress,
         paymentMethod,
         totalPrice: amount,
+        totalDiscount:totalDiscount,
         status: "Pending",
         razorpayOrderId: razorpayOrder.id,
         orderedAt: new Date(),

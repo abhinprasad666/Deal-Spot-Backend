@@ -44,6 +44,10 @@ const orderSchema = new Schema({
         type: Number,
         required: true,
     },
+      totalDiscount: {
+        type: Number,
+        required: true,
+    },
 
     status: {
         type: String,
@@ -63,6 +67,10 @@ const orderSchema = new Schema({
             },
         },
     ],
+
+    expectedDeliveryDate: {
+        type: Date,
+    },
 
     orderedAt: {
         type: Date,

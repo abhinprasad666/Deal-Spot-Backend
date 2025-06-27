@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { protectRoute } from "../middlewares/protectRoute";
-import { createOrder, getMyOrders, getOrderById, } from "../controllers/orderController";
+import { protectRoute } from "../middlewares/protectRoute.js";
+import { createOrder, getMyOrders, getOrderById, } from "../controllers/orderController.js";
 // import { isAdmin } from "../middlewares/roleMiddleware";
 
 
@@ -13,7 +13,7 @@ const orderRouter=Router()
 orderRouter.post("/", protectRoute, createOrder);
 
 // Get current user's orders
-orderRouter.get("/my-orders", protectRoute, getMyOrders);
+orderRouter.get("/", protectRoute, getMyOrders);
 
 // Get order by ID (user/admin)
 orderRouter.get("/:id", protectRoute, getOrderById);
