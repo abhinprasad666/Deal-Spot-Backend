@@ -3,84 +3,112 @@ import asyncHandler from "express-async-handler";
 import Review from "../models/reviewModel.js";
 import Product from "../models/productModel.js";
 import User from "../models/userModel.js";
+import Order from "../models/orderModel.js";
+
 
 // @desc    Add a review to a product
 // @route   POST /api/v1/reviews/:productId
 // @access  Private
 
+
 export const addReview = asyncHandler(async (req, res) => {
-    const { rating, comment } = req.body;
-    const productId = req.params.productId;
-    const userId = req.user.userId;
+  const { rating, comment } = req.body;
+  const productId = req.params.productId;
+  const userId = req.user.userId;
 
-    //Validate productId
-    if (!mongoose.Types.ObjectId.isValid(productId)) {
-        res.status(400);
-        throw new Error("Invalid product ID");
+  //  Validate productId
+  if (!mongoose.Types.ObjectId.isValid(productId)) {
+    res.status(400);
+    throw new Error("Invalid product ID");
+  }
+
+  //  Validate rating
+  if (!rating || rating < 1 || rating > 5) {
+    res.status(400);
+    throw new Error("Rating must be a number between 1 and 5");
+  }
+
+  // Validate comment
+  if (
+    !comment ||
+    typeof comment !== "string" ||
+    comment.trim().length < 3 ||
+    comment.trim().length > 1000
+  ) {
+    res.status(400);
+    throw new Error("Comment must be a string between 3 and 1000 characters");
+  }
+
+  // Check if product exists
+  const product = await Product.findById(productId);
+  if (!product) {
+    res.status(404);
+    throw new Error("Product not found");
+  }
+
+  // Check if user already reviewed
+  const alreadyReviewed = await Review.findOne({
+    product: productId,
+    user: userId,
+  });
+  if (alreadyReviewed) {
+    res.status(400);
+    throw new Error("You have already reviewed this product");
+  }
+
+  // Get user info
+  const user = await User.findById(userId).select("name");
+  if (!user) {
+    res.status(404);
+    throw new Error("User not found");
+  }
+
+  // Create the new review
+  const newReview = await Review.create({
+    user: userId,
+    name: user.name,
+    rating,
+    comment,
+    product: productId,
+  });
+
+  // Push to product reviews and save
+  product.reviews.push(newReview._id);
+  await product.save();
+
+  // Update product average rating
+  await Product.updateRating(productId); // static method in Product model
+
+  // Update Order model - set isReview = rating
+  await Order.updateMany(
+    {
+      userId: userId,
+      "cartItems.productId": productId,
+    },
+    {
+      $set: { "cartItems.$[elem].isReview": rating },
+    },
+    {
+      arrayFilters: [
+        {
+          "elem.productId": new mongoose.Types.ObjectId(productId), // 👈 convert to ObjectId
+        },
+      ],
     }
+  );
 
-    // Validate rating
-    if (!rating || rating < 1 || rating > 5) {
-        res.status(400);
-        throw new Error("Rating must be a number between 1 and 5");
-    }
+  //Populate product title in response
+  const populatedReview = await newReview.populate({
+    path: "product",
+    select: "title",
+  });
 
-    // Validate comment
-    if (!comment || typeof comment !== "string" || comment.trim().length < 3 || comment.trim().length > 1000) {
-        res.status(400);
-        throw new Error("Comment must be a string between 3 and 1000 characters");
-    }
-
-    // Check if product exists
-    const product = await Product.findById(productId);
-    if (!product) {
-        res.status(404);
-        throw new Error("Product not found");
-    }
-
-    // Check if user already reviewed
-    const alreadyReviewed = await Review.findOne({ product: productId, user: userId });
-    if (alreadyReviewed) {
-        res.status(400);
-        throw new Error("You have already reviewed this product");
-    }
-
-    // Get user info
-    const user = await User.findById(userId).select("name");
-    if (!user) {
-        res.status(404);
-        throw new Error("User not found");
-    }
-
-    // Create review
-    const newReview = await Review.create({
-        user: userId,
-        name: user.name,
-        rating,
-        comment,
-        product: productId,
-    });
-
-    // Push to product reviews array
-    product.reviews.push(newReview._id);
-    await product.save();
-
-    // Update product ratings
-    await Product.updateRating(productId);
-
-    // Populate product title in review response
-    const populatedReview = await newReview.populate({
-        path: "product",
-        select: "title"
-    });
-
-    // Send response
-    res.status(201).json({
-        message: "Review added successfully",
-        review: populatedReview,
-    });
+  //  Send response
+  res.status(201).json({
+    message: "Review added successfully",
+    review: populatedReview,
+  });
 });
-
 
 
 // @desc    Get all reviews for a specific product

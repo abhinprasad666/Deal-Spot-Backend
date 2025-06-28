@@ -12,6 +12,10 @@ const orderItemSchema = new Schema({
         required: true,
         min: 1,
     },
+    isReview:{
+        type:Number,
+        default:null
+    }
 });
 
 // Main Order Schema
