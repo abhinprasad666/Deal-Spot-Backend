@@ -284,23 +284,24 @@ export const uploadSellerCoverImage = asyncHandler(async (req, res) => {
 // @desc    Get seller stats like total sales, total orders, total products etc.
 // @access  Private (Only authenticated sellers)
 
+
 export const getSellerStats = asyncHandler(async (req, res) => {
   const sellerId = req.user.userId;
 
-  //  Get all products of this seller
+  // Get all products of this seller
   const products = await Product.find({ seller: sellerId });
   const totalProducts = products.length;
   const outOfStock = products.filter((p) => p.stock === 0).length;
 
-  //  Get all orders that contain seller's products
+  // Get all orders containing seller's products
   const orders = await Order.find({
     "cartItems.productId": { $in: products.map((p) => p._id) },
   });
 
   const totalOrders = orders.length;
   let totalSales = 0;
+  const uniqueUserIds = new Set();
 
-  //  Calculate totalSales from matching cart items
   for (const order of orders) {
     for (const item of order.cartItems) {
       const product = products.find(
@@ -311,26 +312,30 @@ export const getSellerStats = asyncHandler(async (req, res) => {
         const price = product.price || 0;
         const discount = product.discount || 0;
 
-        // If discount is valid (0 to 100), apply it
         const offerPrice =
           discount > 0 && discount <= 100
             ? price - (price * discount) / 100
             : price;
 
-        const finalPrice = Math.max(offerPrice, 0); // avoid negative
+        const finalPrice = Math.max(offerPrice, 0); // prevent negative
         totalSales += finalPrice * item.quantity;
+
+        // Add userId to set if this product belongs to seller
+        uniqueUserIds.add(order.userId.toString());
       }
     }
   }
 
-  // Respond with all stats, even if zero
+  const totalUsers = uniqueUserIds.size;
+
   res.status(200).json({
     success: true,
-    data: {
+    status: {
       totalProducts,
       outOfStock,
       totalOrders,
       totalSales: Math.round(totalSales) || 0,
+      totalUsers,
     },
   });
 });
