@@ -2,7 +2,8 @@ import asyncHandler from "express-async-handler";
 import Seller from "../models/sellerModel.js";
 import User from "../models/userModel.js";
 import cloudinary from "../config/cloudinary.js";
-
+import Product from "../models/productModel.js";
+import Order from "../models/orderModel.js";
 // @desc    Create Seller Account (with email/password verification)
 // @route   POST /api/v1/seller
 // @access  Private
@@ -275,4 +276,61 @@ export const uploadSellerCoverImage = asyncHandler(async (req, res) => {
         message: " profile picture uploaded successfully.",
         seller,
     });
+});
+
+
+
+// @route   GET /api/v1/seller/status
+// @desc    Get seller stats like total sales, total orders, total products etc.
+// @access  Private (Only authenticated sellers)
+
+export const getSellerStats = asyncHandler(async (req, res) => {
+  const sellerId = req.user.userId;
+
+  //  Get all products of this seller
+  const products = await Product.find({ seller: sellerId });
+  const totalProducts = products.length;
+  const outOfStock = products.filter((p) => p.stock === 0).length;
+
+  //  Get all orders that contain seller's products
+  const orders = await Order.find({
+    "cartItems.productId": { $in: products.map((p) => p._id) },
+  });
+
+  const totalOrders = orders.length;
+  let totalSales = 0;
+
+  //  Calculate totalSales from matching cart items
+  for (const order of orders) {
+    for (const item of order.cartItems) {
+      const product = products.find(
+        (p) => p._id.toString() === item.productId.toString()
+      );
+
+      if (product) {
+        const price = product.price || 0;
+        const discount = product.discount || 0;
+
+        // If discount is valid (0 to 100), apply it
+        const offerPrice =
+          discount > 0 && discount <= 100
+            ? price - (price * discount) / 100
+            : price;
+
+        const finalPrice = Math.max(offerPrice, 0); // avoid negative
+        totalSales += finalPrice * item.quantity;
+      }
+    }
+  }
+
+  // Respond with all stats, even if zero
+  res.status(200).json({
+    success: true,
+    data: {
+      totalProducts,
+      outOfStock,
+      totalOrders,
+      totalSales: Math.round(totalSales) || 0,
+    },
+  });
 });

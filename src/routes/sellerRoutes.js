@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { deleteMySellerAccountController, getSellerProfileController, registerController, updateMySellerProfileController, uploadSellerCoverImage, uploadSellerProfilePic } from "../controllers/sellerController.js";
+import { deleteMySellerAccountController, getSellerProfileController, getSellerStats, registerController, updateMySellerProfileController, uploadSellerCoverImage, uploadSellerProfilePic } from "../controllers/sellerController.js";
 import { protectRoute } from "../middlewares/protectRoute.js";
 import { isSellerOrAdmin } from "../middlewares/roleMiddleware.js";
 import { runValidation, sellerRegisterValidation, sellerValidateUpdate } from "../middlewares/validationMiddlewares/sellerValidation.js";
@@ -38,7 +38,9 @@ sellerRouter.post("/upload/dp", protectRoute,isSellerOrAdmin,upload.single("imag
 // @access  Private (Only authenticated sellers or admin)
 sellerRouter.post("/upload/coverImage", protectRoute,isSellerOrAdmin,upload.single("image"),uploadSellerCoverImage);
 
-
+// get status
+// api/v1/seller/status
+sellerRouter.get('/status',protectRoute,isSellerOrAdmin,getSellerStats)
 
 
 export default sellerRouter

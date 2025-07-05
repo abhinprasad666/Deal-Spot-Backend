@@ -1,6 +1,6 @@
 import asyncHandler from "express-async-handler";
 import Order from "../models/orderModel.js";
-
+import mongoose from "mongoose";
 // @desc    Create new order
 // @route   POST /api/v1/order
 // @access  Private
@@ -47,7 +47,7 @@ export const getMyOrders = asyncHandler(async (req, res) => {
 // @desc    Get order by ID
 // @route   GET /api/v1/order/:id
 // @access  Private/Admin
-import mongoose from "mongoose";
+
 
 export const getOrderById = asyncHandler(async (req, res) => {
     const { id } = req.params;
