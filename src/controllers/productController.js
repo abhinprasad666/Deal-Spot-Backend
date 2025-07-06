@@ -117,7 +117,7 @@ export const updateProduct = asyncHandler(async (req, res) => {
     const currentUser = req.user;
 
     // Destructure updated fields from request body
-    const { title, description, price, category, brand, stock, isFeatured, offerPrice } = req.body;
+    const { title, description, price, category, brand, stock, isFeatured, offerPrice } = req.body ||{};
 
     // Check authentication
     if (!currentUser) {
@@ -295,12 +295,14 @@ export const getFeaturedProducts = asyncHandler(async (req, res) => {
 // @access  Private (Seller only)
 export const getMyProducts = asyncHandler(async (req, res) => {
     const currentUser = req.user;
+    console.log("current user role",currentUser)
 
     // Check if current user exists and is a seller
-    if (!currentUser || currentUser.role !== "seller" || currentUser.role !== "admin") {
-        res.status(403);
-        throw new Error("Only sellers can access this resource");
-    }
+   if (!currentUser || (currentUser.role !== "seller" && currentUser.role !== "admin")) {
+    res.status(403);
+    throw new Error("Only sellers can access this resource");
+}
+
 
     // Find all products created by this seller
     const products = await Product.find({ seller: currentUser.userId }).populate([

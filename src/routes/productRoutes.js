@@ -35,7 +35,7 @@ productRouter.get('/featured',protectRoute,getFeaturedProducts);
 // @desc    Get products created by the logged-in seller
 // @route   GET /api/v1/products/my
 // @access  Private (Seller only)
-productRouter.get('/my',protectRoute,getMyProducts);
+productRouter.get('/my',protectRoute,isSellerOrAdmin, getMyProducts);
 
 // @desc    Delete a product (Only Admin or Seller who owns it)
 // @route   DELETE /api/v1/products/:id

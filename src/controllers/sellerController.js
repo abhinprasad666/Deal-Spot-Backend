@@ -4,6 +4,9 @@ import User from "../models/userModel.js";
 import cloudinary from "../config/cloudinary.js";
 import Product from "../models/productModel.js";
 import Order from "../models/orderModel.js";
+import Review from "../models/reviewModel.js";
+
+
 // @desc    Create Seller Account (with email/password verification)
 // @route   POST /api/v1/seller
 // @access  Private
@@ -288,14 +291,15 @@ export const uploadSellerCoverImage = asyncHandler(async (req, res) => {
 export const getSellerStats = asyncHandler(async (req, res) => {
   const sellerId = req.user.userId;
 
-  // Get all products of this seller
+  // Get all products by seller
   const products = await Product.find({ seller: sellerId });
+  const productIds = products.map((p) => p._id);
   const totalProducts = products.length;
   const outOfStock = products.filter((p) => p.stock === 0).length;
 
-  // Get all orders containing seller's products
+  // Get orders with those products
   const orders = await Order.find({
-    "cartItems.productId": { $in: products.map((p) => p._id) },
+    "cartItems.productId": { $in: productIds },
   });
 
   const totalOrders = orders.length;
@@ -311,22 +315,24 @@ export const getSellerStats = asyncHandler(async (req, res) => {
       if (product) {
         const price = product.price || 0;
         const discount = product.discount || 0;
-
         const offerPrice =
           discount > 0 && discount <= 100
             ? price - (price * discount) / 100
             : price;
+        const finalPrice = Math.max(offerPrice, 0);
 
-        const finalPrice = Math.max(offerPrice, 0); // prevent negative
         totalSales += finalPrice * item.quantity;
-
-        // Add userId to set if this product belongs to seller
         uniqueUserIds.add(order.userId.toString());
       }
     }
   }
 
   const totalUsers = uniqueUserIds.size;
+
+  // Get total reviews correctly using "product" field
+  const totalReviews = await Review.countDocuments({
+    product: { $in: productIds },
+  });
 
   res.status(200).json({
     success: true,
@@ -336,6 +342,7 @@ export const getSellerStats = asyncHandler(async (req, res) => {
       totalOrders,
       totalSales: Math.round(totalSales) || 0,
       totalUsers,
+      totalReviews,
     },
   });
 });
