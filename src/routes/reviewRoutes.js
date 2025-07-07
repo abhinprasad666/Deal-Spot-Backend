@@ -1,6 +1,7 @@
 import { Router } from "express";
-import { addReview, deleteReview, getProductReviews } from "../controllers/reviewController.js";
+import { addReview, deleteReview, getProductReviews, getSellerReviews } from "../controllers/reviewController.js";
 import { protectRoute } from "../middlewares/protectRoute.js";
+import { isSellerOrAdmin } from "../middlewares/roleMiddleware.js";
 
 
 const reviewRouter=Router()
@@ -19,6 +20,11 @@ reviewRouter.get("/:productId", getProductReviews);
 // @route   DELETE /api/v1/reviews/:reviewId
 // @access  Private
 reviewRouter.delete("/delete/:reviewId", protectRoute, deleteReview);
+
+
+// @route   get/api/v1/reviews/userId
+// @access  Private
+reviewRouter.get("/seller/allReviews", protectRoute,isSellerOrAdmin,getSellerReviews);
 
 
 

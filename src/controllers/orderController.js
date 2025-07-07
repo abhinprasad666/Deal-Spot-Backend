@@ -29,20 +29,32 @@ export const createOrder = asyncHandler(async (req, res) => {
 // @route   GET /api/v1/order/my-orders
 // @access  Private
 
+
 export const getMyOrders = asyncHandler(async (req, res) => {
-    const orders = await Order.find({ userId: req.user.userId }).sort({ orderedAt: -1 }).populate({
-        path: "cartItems.productId",
-        select: "title image price discount", // Add other fields as needed
+  const userId = req.user?.userId;
+  console.log("userid",userId)
+
+  if (!userId) {
+    return res.status(401).json({ success: false, message: "Unauthorized access" });
+  }
+
+  const orders = await Order.find({ userId })
+    .sort({ orderedAt: -1 })
+    .populate({
+      path: "cartItems.productId",
+      select: "title image price discount", // Select fields you need
     });
 
-    //  If no orders placed yet
-    if (!orders || orders.length === 0) {
-        return res.status(200).json([]); // Send empty array to keep frontend consistent
-    }
+  if (!orders || orders.length === 0) {
+    return res.status(200).json([]);
+  }
 
-    //  Orders found
-    res.status(200).json({ success: true, orders });
+  res.status(200).json({
+    success: true,
+    orders,
+  });
 });
+
 
 // @desc    Get order by ID
 // @route   GET /api/v1/order/:id

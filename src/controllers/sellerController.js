@@ -276,7 +276,7 @@ export const uploadSellerCoverImage = asyncHandler(async (req, res) => {
     // Send response
     res.status(200).json({
         success: true,
-        message: " profile picture uploaded successfully.",
+        message: " profile cover image uploaded successfully.",
         seller,
     });
 });
@@ -344,5 +344,75 @@ export const getSellerStats = asyncHandler(async (req, res) => {
       totalUsers,
       totalReviews,
     },
+  });
+});
+
+//get seller orders
+export const getSellerOrders = asyncHandler(async (req, res) => {
+  const sellerId = req.user?.userId;
+
+  if (!sellerId) {
+    return res.status(401).json({ success: false, message: "Unauthorized" });
+  }
+
+  // Step 1: Get all products by this seller
+  const sellerProducts = await Product.find({ seller: sellerId }).select("_id");
+
+  const productIds = sellerProducts.map((p) => p._id);
+
+  if (productIds.length === 0) {
+    return res.status(200).json({ success: true, orders: [] });
+  }
+
+  // Step 2: Get all orders that contain these products
+  const orders = await Order.find({
+    "cartItems.productId": { $in: productIds },
+  })
+    .sort({ orderedAt: -1 })
+    .populate({
+      path: "cartItems.productId",
+      select: "title image price discount seller",
+    })
+    .populate({
+      path: "userId",
+      select: "name email", // optional: show user details
+    });
+
+  res.status(200).json({
+    success: true,
+    count:orders.length,
+    orders,
+    
+  });
+});
+
+//get total users
+export const getSellerUsers = asyncHandler(async (req, res) => {
+  const sellerId = req.user.userId;
+
+  // Seller's products
+  const products = await Product.find({ seller: sellerId }).select("_id");
+  const productIds = products.map((p) => p._id);
+
+  if (productIds.length === 0) {
+    return res.status(200).json({ success: true, users: [] });
+  }
+
+  // Orders with those products
+  const orders = await Order.find({
+    "cartItems.productId": { $in: productIds },
+  }).select("userId");
+
+  // Unique userIds
+  const userIdSet = new Set(orders.map((order) => order.userId.toString()));
+  const uniqueUserIds = Array.from(userIdSet);
+
+  // Get user names from User model
+  const users = await User.find({ _id: { $in: uniqueUserIds } }).select("_id name");
+
+  res.status(200).json({
+    success: true,
+    users:users ||[],
+    totalUsers: users.length|| 0,
   });
 });

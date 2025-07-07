@@ -124,7 +124,7 @@ export const getProductReviews = asyncHandler(async (req, res) => {
 
   const reviews = await Review.find({ product: productId })
     .populate("user", "name email")
-    .populate("product", "title") // Make sure 'title' exists
+    .populate("product", "title image",) // Make sure 'title' exists
     .sort({ createdAt: -1 });
 
   res.status(200).json(
@@ -180,3 +180,36 @@ export const deleteReview = asyncHandler(async (req, res) => {
     //  Send response
     res.status(200).json({ message: "Review deleted successfully" });
 });
+
+//get seller all reviews
+// controllers/reviewController.js
+
+
+
+// GET /api/reviews/user/:userId
+
+export const getSellerReviews = async (req, res) => {
+  const sellerId = req.user.userId;
+
+  try {
+    // Step 1: Find all product IDs owned by this seller
+    const sellerProducts = await Product.find({ seller: sellerId }).select("_id");
+
+    const productIds = sellerProducts.map((product) => product._id);
+
+    // Step 2: Find all reviews for those products
+    const reviews = await Review.find({ product: { $in: productIds } })
+      .populate("product", "title image rating")
+      .populate("user", "name email") 
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success:true,
+      count:reviews.length,
+      reviews
+    });
+  } catch (err) {
+    console.error("Error fetching seller reviews:", err);
+    res.status(500).json({ message: "Failed to fetch seller's product reviews", error: err.message });
+  }
+};

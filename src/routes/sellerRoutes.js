@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { deleteMySellerAccountController, getSellerProfileController, getSellerStats, registerController, updateMySellerProfileController, uploadSellerCoverImage, uploadSellerProfilePic } from "../controllers/sellerController.js";
+import { deleteMySellerAccountController, getSellerOrders, getSellerProfileController, getSellerStats, getSellerUsers, registerController, updateMySellerProfileController, uploadSellerCoverImage, uploadSellerProfilePic } from "../controllers/sellerController.js";
 import { protectRoute } from "../middlewares/protectRoute.js";
 import { isSellerOrAdmin } from "../middlewares/roleMiddleware.js";
 import { runValidation, sellerRegisterValidation, sellerValidateUpdate } from "../middlewares/validationMiddlewares/sellerValidation.js";
@@ -28,19 +28,28 @@ sellerRouter.put('/',protectRoute,isSellerOrAdmin,sellerValidateUpdate,runValida
 // //delete my account
 sellerRouter.delete('/',protectRoute,isSellerOrAdmin,deleteMySellerAccountController)
 
-// @route   POST /api/v1/seller/upload/dp
+// @route   Put /api/v1/seller/upload/dp
 // @desc    Upload an image to Cloudinary
 // @access  Private (Only authenticated sellers or admin)
-sellerRouter.post("/upload/dp", protectRoute,isSellerOrAdmin,upload.single("image"),uploadSellerProfilePic);
+sellerRouter.put("/upload/dp", protectRoute,isSellerOrAdmin,upload.single("image"),uploadSellerProfilePic);
 
-// @route   POST /api/v1/seller/upload/coverImage
+// @route   Put /api/v1/seller/upload/coverImage
 // @desc    Upload an image to Cloudinary
 // @access  Private (Only authenticated sellers or admin)
-sellerRouter.post("/upload/coverImage", protectRoute,isSellerOrAdmin,upload.single("image"),uploadSellerCoverImage);
+sellerRouter.put("/upload/coverImage", protectRoute,isSellerOrAdmin,upload.single("image"),uploadSellerCoverImage);
 
 // get status
 // api/v1/seller/status
 sellerRouter.get('/status',protectRoute,isSellerOrAdmin,getSellerStats)
+
+// get seller orders
+// api/v1/seller/orders
+sellerRouter.get('/orders',protectRoute,isSellerOrAdmin,getSellerOrders)
+
+// get seller users
+// api/v1/seller/users
+sellerRouter.get('/users',protectRoute,isSellerOrAdmin,getSellerUsers)
+
 
 
 export default sellerRouter

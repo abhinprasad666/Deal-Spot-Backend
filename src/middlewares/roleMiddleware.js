@@ -15,6 +15,7 @@ export const isAdmin = (req, res, next) => {
  * Middleware to authorize sellers or admins only
  */
 export const isSellerOrAdmin = (req, res, next) => {
+
     if (req.user.role === "seller" || req.user.role === "admin") {
         return next();
     }
