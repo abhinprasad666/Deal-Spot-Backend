@@ -295,14 +295,13 @@ export const getFeaturedProducts = asyncHandler(async (req, res) => {
 // @access  Private (Seller only)
 export const getMyProducts = asyncHandler(async (req, res) => {
     const currentUser = req.user;
-    console.log("current user role",currentUser)
+    console.log("current user role", currentUser);
 
-    // Check if current user exists and is a seller
-   if (!currentUser || (currentUser.role !== "seller" && currentUser.role !== "admin")) {
-    res.status(403);
-    throw new Error("Only sellers can access this resource");
-}
-
+    // Check if current user exists and is a seller or admin
+    if (!currentUser || (currentUser.role !== "seller" && currentUser.role !== "admin")) {
+        res.status(403);
+        throw new Error("Only sellers can access this resource");
+    }
 
     // Find all products created by this seller
     const products = await Product.find({ seller: currentUser.userId }).populate([
@@ -310,18 +309,13 @@ export const getMyProducts = asyncHandler(async (req, res) => {
         { path: "seller", select: "name" },
     ]);
 
-    // If no products are found, return 404
-    if (!products || products.length === 0) {
-        res.status(404);
-        throw new Error("No products found for this seller");
-    }
-
-    // Return the seller's products
+    // Always return success with an array, even if empty
     res.status(200).json({
         success: true,
         products,
     });
 });
+
 
 // @desc    Delete a product (Only Admin or Seller who owns it)
 // @route   DELETE /api/v1/products/:id

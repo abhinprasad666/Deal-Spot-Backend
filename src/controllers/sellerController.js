@@ -11,8 +11,9 @@ import Review from "../models/reviewModel.js";
 // @route   POST /api/v1/seller
 // @access  Private
 export const registerController = asyncHandler(async (req, res) => {
-    const { email, password, shopName, bio, address } = req.body || {};
+    const { email, password, shopName, bio, address, gstNumber } = req.body || {};
 
+    const GSTNUM= gstNumber ?gstNumber:null
     // Ensure the user is logged in
     if (!req.user) {
         res.status(401);
@@ -28,18 +29,12 @@ export const registerController = asyncHandler(async (req, res) => {
         throw new Error("User not found. Please sign up.");
     }
 
-    //  Verify that the email matches the logged-in user's email
-    if (user.email !== email) {
-        res.status(401);
-        throw new Error("Entered email does not match your account.");
-    }
-
-    // Verify the user's password
-    const isPasswordCorrect = await user.checkPassword(password);
-    if (!isPasswordCorrect) {
-        res.status(401);
-        throw new Error("Incorrect password.");
-    }
+     const isPasswordCorrect = await user.checkPassword(password);
+    
+   if (user.email !== email && !isPasswordCorrect) {
+  res.status(401);
+  throw new Error("Invalid email or password. Please try again.");
+}
 
     // Check if a seller account already exists for this user
     const existingSeller = await Seller.findOne({ userId });
@@ -64,6 +59,7 @@ export const registerController = asyncHandler(async (req, res) => {
         shopName,
         bio,
         address,
+        gstNumber:GSTNUM
     });
 
     // Send a success response with created seller and updated user data

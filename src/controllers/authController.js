@@ -102,10 +102,6 @@ export const logoutController = asyncHandler(async (req, res) => {
     });
 });
 
-// @route   POST /api/v1/auth/forgotPassword
-// @desc    Send OTP to user's email to initiate password reset
-// @access  Public
-
 
 // @route   POST /api/v1/auth/forgotPassword
 // @desc    Send OTP to user's email to initiate password reset
