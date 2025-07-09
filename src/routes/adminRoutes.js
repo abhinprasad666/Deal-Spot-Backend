@@ -9,12 +9,17 @@ import {
 } from "../controllers/adminController.js";
 import { isAdmin } from "../middlewares/roleMiddleware.js";
 import { protectRoute } from "../middlewares/protectRoute.js";
+import { loginController } from "../controllers/authController.js";
+import { runValidation, validateLogin } from "../middlewares/validationMiddlewares/userValidation.js";
+import { isAdminLogin } from "../middlewares/isAdminLogin.js";
 
 
 
 const adminRouter = Router();
 
 // @desc    Get all users (Admin only)
+adminRouter.post("/login",validateLogin, runValidation,isAdminLogin,loginController); // @route   GET /api/v1/admin/Users
+
 adminRouter.get("/users", protectRoute, isAdmin, getAllUsers); // @route   GET /api/v1/admin/Users
 
 // @desc    Get a user or seller by ID (admin access only)
