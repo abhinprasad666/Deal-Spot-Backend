@@ -15,21 +15,23 @@ const PORT = process.env.PORT || 5001;
 
 // CORS configuration to allow requests from the frontend
 const allowedOrigins = [
-  "http://localhost:5173", // for local dev
-  process.env.FRONTEND_URL?.trim(),        // user app
-  process.env.ADMIN_FRONTEND_URL?.trim(),  // admin app
-];
+  "http://localhost:5173",
+  process.env.FRONTEND_URL?.trim(),
+  process.env.ADMIN_FRONTEND_URL?.trim(),
+  "https://deal-spot-admin.netlify.app" // ← add this explicitly if .env not working
+].filter(Boolean);
 
 const corsOptions = {
-    origin: function (origin, callback) {
-        console.log("Origin trying to access:", origin); // for debugging
-        if (!origin || allowedOrigins.includes(origin)) {
-            callback(null, true);
-        } else {
-            callback(new Error("Not allowed by CORS"));
-        }
-    },
-    credentials: true,
+  origin: function (origin, callback) {
+    // Allow non-browser tools like Postman (no origin)
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.error(" CORS blocked origin:", origin);
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true,
 };
 
 app.use(cors(corsOptions));
