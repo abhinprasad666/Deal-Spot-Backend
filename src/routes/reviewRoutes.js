@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { addReview, deleteReview, getProductReviews, getSellerReviews } from "../controllers/reviewController.js";
+import { addReview, deleteReview, getAllReviews, getProductReviews, getSellerReviews } from "../controllers/reviewController.js";
 import { protectRoute } from "../middlewares/protectRoute.js";
 import { isSellerOrAdmin } from "../middlewares/roleMiddleware.js";
 
@@ -25,6 +25,10 @@ reviewRouter.delete("/delete/:reviewId", protectRoute, deleteReview);
 // @route   get/api/v1/reviews/userId
 // @access  Private
 reviewRouter.get("/seller/allReviews", protectRoute,isSellerOrAdmin,getSellerReviews);
+
+// @route   get/api/v1/reviews/all
+// @access  Private
+reviewRouter.get("/admin/allReviews", protectRoute,isSellerOrAdmin,getAllReviews);
 
 
 

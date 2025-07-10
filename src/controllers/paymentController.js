@@ -134,7 +134,7 @@ export const verifyPayment = asyncHandler(async (req, res) => {
         if (product) {
             // 🔸 Stock kurakkanam
             if (product.stock < item.quantity) {
-                console.warn(`⚠️ Stock not enough for: ${product.title}`);
+                console.warn(` Stock not enough for: ${product.title}`);
             } else {
                 product.stock -= item.quantity;
             }

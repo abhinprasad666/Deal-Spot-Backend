@@ -3,7 +3,7 @@
  * Middleware to authorize admin users only
  */
 export const isAdmin = (req, res, next) => {
-    
+    console.log("admin",req.user)
     if (req.user.role === "admin") {
         return next();
     }

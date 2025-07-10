@@ -62,7 +62,7 @@ export const getMyOrders = asyncHandler(async (req, res) => {
 
 
 export const getOrderById = asyncHandler(async (req, res) => {
-    const { id } = req.params;
+    const { id } = req.params || {};
 
     //Check if id is a valid MongoDB ObjectId
     if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -101,4 +101,53 @@ export const updateOrderStatus = asyncHandler(async (req, res) => {
 
     const updatedOrder = await order.save();
     res.status(200).json({ success: true, order: updatedOrder });
+});
+
+// get all orders
+
+
+export const getAllOrders = asyncHandler(async (req, res) => {
+  const orders = await Order.find({})
+    .populate("userId", "name email")
+    .populate("cartItems.productId", "title image price")
+    .sort({ createdAt: -1 });
+
+  res.status(200).json({
+    success: true,
+    count: orders.length,
+    orders,
+  });
+});
+
+//total revenue
+export const getTotalRevenue = asyncHandler(async (req, res) => {
+  const orders = await Order.find();
+  const totalRevenue = orders.reduce((acc, order) => acc + order.totalPrice, 0);
+
+  res.status(200).json({
+    success: true,
+    totalRevenue,
+  });
+});
+
+
+export const getOrderStatusCounts = asyncHandler(async (req, res) => {
+  const statusCounts = await Order.aggregate([
+    {
+      $group: {
+        _id: "$status",
+        count: { $sum: 1 }
+      }
+    }
+  ]);
+
+  const counts = {};
+  statusCounts.forEach(item => {
+    counts[item._id] = item.count;
+  });
+
+  res.status(200).json({
+    success: true,
+    statusCounts: counts,
+  });
 });

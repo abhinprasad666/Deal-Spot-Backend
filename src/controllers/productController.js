@@ -209,30 +209,33 @@ export const updateProduct = asyncHandler(async (req, res) => {
 export const getAllProducts = asyncHandler(async (req, res) => {
     const keyword = req.query.keyword;
 
-    const searchStage = keyword
+    const matchStage = keyword
         ? {
-              $match: {
-                  $or: [
-                      { title: { $regex: keyword, $options: "i" } },
-                      { brand: { $regex: keyword, $options: "i" } },
-                      { "category.name": { $regex: keyword, $options: "i" } },
-                  ],
-              },
+              $or: [
+                  { title: { $regex: keyword, $options: "i" } },
+                  { brand: { $regex: keyword, $options: "i" } },
+                  { "category.name": { $regex: keyword, $options: "i" } },
+              ],
           }
-        : { $match: {} };
+        : {};
 
-    const products = await Product.aggregate([
-        {
-            $lookup: {
-                from: "categories",
-                localField: "category",
-                foreignField: "_id",
-                as: "category",
+    const products = await Product.find(matchStage)
+        .populate({
+            path: "seller",
+            select: "name email", // ✅ show only name/email
+        })
+        .populate({
+            path: "category",
+            select: "name", // ✅ only show category name
+        })
+        .populate({
+            path: "reviews",
+            populate: {
+                path: "user",
+                select: "name profilePic", // ✅ nested user info inside reviews
             },
-        },
-        { $unwind: "$category" },
-        searchStage
-    ]);
+        })
+        .lean();
 
     res.status(200).json({
         success: true,
@@ -241,6 +244,7 @@ export const getAllProducts = asyncHandler(async (req, res) => {
         products,
     });
 });
+
 
 
 // @desc    Get a single product by ID

@@ -15,8 +15,9 @@ const PORT = process.env.PORT || 5001;
 
 // CORS configuration to allow requests from the frontend
 const allowedOrigins = [
-    "http://localhost:5173",
-    process.env.FRONTEND_URL?.trim(), // ensure clean HTTPS URL
+  "http://localhost:5173", // for local dev
+  process.env.FRONTEND_URL?.trim(),        // user app
+  process.env.ADMIN_FRONTEND_URL?.trim(),  // admin app
 ];
 
 const corsOptions = {
@@ -45,11 +46,7 @@ app.use(express.urlencoded({ extended: true }));
 // Middleware to parse cookies from the request headers
 app.use(cookieParser());
 
-/* ---------------------------------------------------
-   Handle favicon.ico requests to avoid 500 error
-   This prevents console error when browser tries
-   to load favicon but it's not served by backend
------------------------------------------------------ */
+
 app.get("/favicon.ico", (req, res) => res.status(204).end());
 
 // Main API routes prefix
