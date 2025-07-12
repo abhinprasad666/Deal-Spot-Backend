@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { protectRoute } from "../middlewares/protectRoute.js";
-import { createProduct, deleteProduct, getAllProducts, getFeaturedProducts, getMyProducts, getSingleProduct, updateProduct } from "../controllers/productController.js";
+import { createProduct, deleteProduct, getAllProducts, getFeaturedProducts, getMyProducts, getProductsByCategory, getSingleProduct, updateProduct } from "../controllers/productController.js";
 import { runValidation, validateCreateProduct } from "../middlewares/validationMiddlewares/productValidation.js";
 import { upload } from "../middlewares/multer.js";
 import { isSellerOrAdmin } from "../middlewares/roleMiddleware.js";
@@ -26,6 +26,12 @@ productRouter.get('/',getAllProducts);
 // @route   GET /api/v1/products/:id
 // @access  Public
 productRouter.get('/single/:id',getSingleProduct);
+
+// @desc    Get a category product by ID
+// @route   GET /api/v1/category/:id
+// @access  Public
+productRouter.get('/category/:categoryId',getProductsByCategory);
+
 
 // @desc    Get featured products
 // @route   GET /api/v1/products/featured

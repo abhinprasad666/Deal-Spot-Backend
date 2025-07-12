@@ -117,7 +117,9 @@ export const updateProduct = asyncHandler(async (req, res) => {
     const currentUser = req.user;
 
     // Destructure updated fields from request body
-    const { title, description, price, category, brand, stock, isFeatured, offerPrice } = req.body ||{};
+    const { title, description, price, category, brand, stock, isFeatured, offerPrice,discount} = req.body ||{};
+
+    console.log("prduct",req.body)
 
     // Check authentication
     if (!currentUser) {
@@ -184,6 +186,7 @@ export const updateProduct = asyncHandler(async (req, res) => {
     product.product = offerPrice || product.offerPrice;
     product.isFeatured = isFeatured !== undefined ? isFeatured : product.isFeatured;
     product.offerPrice = offerPrice || product.offerPrice;
+    product.discount= discount || product.discount;
     product.image = imageUrl;
 
     // Save updated product
@@ -222,17 +225,17 @@ export const getAllProducts = asyncHandler(async (req, res) => {
     const products = await Product.find(matchStage)
         .populate({
             path: "seller",
-            select: "name email", // ✅ show only name/email
+            select: "name email",
         })
         .populate({
             path: "category",
-            select: "name", // ✅ only show category name
+            select: "name", 
         })
         .populate({
             path: "reviews",
             populate: {
                 path: "user",
-                select: "name profilePic", // ✅ nested user info inside reviews
+                select: "name profilePic", 
             },
         })
         .lean();
@@ -357,5 +360,66 @@ export const deleteProduct = asyncHandler(async (req, res) => {
     res.status(200).json({
         message: "Product deleted successfully",
         deletedProduct: deletedProductName,
+    });
+});
+
+// @desc    Get all products by Category ID
+// @route   GET /api/v1/products/category/:categoryId
+// @access  Public
+
+export const getProductsByCategory = asyncHandler(async (req, res) => {
+    const { categoryId } = req.params;
+
+    // Check if categoryId is valid
+    if (!mongoose.Types.ObjectId.isValid(categoryId)) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid category ID",
+        });
+    }
+
+    // Get category info
+    const category = await Category.findById(categoryId).lean();
+
+    if (!category) {
+        return res.status(404).json({
+            success: false,
+            message: "Category not found",
+        });
+    }
+
+    // Get products for this category
+    const products = await Product.find({ category: categoryId })
+        .populate({
+            path: "seller",
+            select: "name email",
+        })
+        .populate({
+            path: "category",
+            select: "name",
+        })
+        .populate({
+            path: "reviews",
+            populate: {
+                path: "user",
+                select: "name profilePic",
+            },
+        })
+        .lean();
+
+    // Send both category and its products
+    res.status(200).json({
+        success: true,
+        message: "Products under the selected category",
+        category: {
+            _id: category._id,
+            name: category.name,
+            description: category.description,
+            labal: category.label || category.labal || "", // fallback if typo
+            image: category.image,
+            isActive: category.isActive,
+        },
+        count: products.length,
+        products,
     });
 });

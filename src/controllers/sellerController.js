@@ -11,63 +11,57 @@ import Review from "../models/reviewModel.js";
 // @route   POST /api/v1/seller
 // @access  Private
 export const registerController = asyncHandler(async (req, res) => {
-    const { email, password, shopName, bio, address, gstNumber } = req.body || {};
+  const { email, password, shopName, bio, address, gstNumber } = req.body || {};
 
-    const GSTNUM= gstNumber ?gstNumber:null
-    // Ensure the user is logged in
-    if (!req.user) {
-        res.status(401);
-        throw new Error("Please log in to create a seller account.");
-    }
+  const GSTNUM = gstNumber ? gstNumber : null;
 
-    const userId = req.user.userId;
+  // Ensure the user is logged in
+  if (!req.user) {
+    res.status(401);
+    throw new Error("Please log in to create a seller account.");
+  }
 
-    // Find user by ID from the database
-    const user = await User.findById(userId);
-    if (!user) {
-        res.status(404);
-        throw new Error("User not found. Please sign up.");
-    }
+  const userId = req.user.userId;
 
-     const isPasswordCorrect = await user.checkPassword(password);
-    
-   if (user.email !== email && !isPasswordCorrect) {
-  res.status(401);
-  throw new Error("Invalid email or password. Please try again.");
-}
+  const user = await User.findById(userId);
+  if (!user) {
+    res.status(404);
+    throw new Error("User not found. Please sign up.");
+  }
 
-    // Check if a seller account already exists for this user
-    const existingSeller = await Seller.findOne({ userId });
-    if (existingSeller) {
-        res.status(400);
-        throw new Error("Seller account already exists for this user.");
-    }
+  const isPasswordCorrect = await user.checkPassword(password);
 
-    // Update user role to "seller"
-    user.role = "seller";
+  if (user.email !== email || !isPasswordCorrect) {
+    res.status(401);
+    throw new Error("Invalid email or password. Please try again.");
+  }
 
-    // Save the updated user to the database
-    const savedUser = await user.save();
+  // Check if a seller account already exists
+  const existingSeller = await Seller.findOne({ userId });
+  if (existingSeller) {
+    res.status(400);
+    throw new Error("Seller account already exists for this user.");
+  }
 
-    // Convert the user object to plain JS and remove the password before sending response
-    const userObj = savedUser.toObject();
-    delete userObj.password;
+  user.role = "seller";
+  const savedUser = await user.save();
 
-    // Create a new seller record in the database
-    const newSeller = await Seller.create({
-        userId: user._id,
-        shopName,
-        bio,
-        address,
-        gstNumber:GSTNUM
-    });
+  const userObj = savedUser.toObject();
+  delete userObj.password;
 
-    // Send a success response with created seller and updated user data
-    res.status(201).json({
-        message: "Seller account created successfully",
-        userData: userObj,
-        sellerData: newSeller,
-    });
+  const newSeller = await Seller.create({
+    userId: user._id,
+    shopName,
+    bio,
+    address,
+    gstNumber: GSTNUM,
+  });
+
+  res.status(201).json({
+    message: "Seller account created successfully",
+    userData: userObj,
+    sellerData: newSeller,
+  });
 });
 
 // @route   GET /api/v1/seller/profile

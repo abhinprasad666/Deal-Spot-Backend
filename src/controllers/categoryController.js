@@ -9,9 +9,9 @@ import mongoose from "mongoose";
 // @route   POST /api/v1/category
 // @access  Private/Admin
 export const createCategory = asyncHandler(async (req, res) => {
+
   const { name, description,labal, } = req.body || {};
   const file = req.file?.path;
-
   // Validation: Check required fields
   if (!name || !description) {
     res.status(400);
@@ -47,6 +47,7 @@ export const createCategory = asyncHandler(async (req, res) => {
     image: imageUrl || "",
     labal:labal || ""
   });
+
 
   res.status(201).json({
     message: "Category created successfully",

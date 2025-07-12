@@ -18,7 +18,6 @@ const allowedOrigins = [
   "http://localhost:5173",
   process.env.FRONTEND_URL?.trim(),
   process.env.ADMIN_FRONTEND_URL?.trim(),
-  "https://deal-spot-admin.netlify.app" // ← add this explicitly if .env not working
 ].filter(Boolean);
 
 const corsOptions = {

@@ -1,6 +1,5 @@
 import asyncHandler from "express-async-handler";
 import User from "../models/userModel.js";
-import Seller from "../models/sellerModel.js";
 
 // @desc    Get all users (Admin only)
 // @route   GET /api/v1/admin/users
@@ -13,7 +12,7 @@ export const getAllUsers = asyncHandler(async (req, res) => {
     }
 
     // Fetch all users from the database (excluding password)
-   const users = await User.find({ role: "customer" }).select("-password");
+   const users = await User.find({}).select("-password");
 
     // Return the list of users
     res.status(200).json({
