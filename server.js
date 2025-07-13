@@ -16,6 +16,7 @@ const PORT = process.env.PORT || 5001;
 // CORS configuration to allow requests from the frontend
 const allowedOrigins = [
   "http://localhost:5173",
+  process.env.ADMIN_SECOND_FRONTEND_URL,
   process.env.FRONTEND_URL?.trim(),
   process.env.ADMIN_FRONTEND_URL?.trim(),
 ].filter(Boolean);
