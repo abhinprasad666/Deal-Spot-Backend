@@ -13,28 +13,32 @@ config();
 const app = express();
 const PORT = process.env.PORT || 5001;
 
-// CORS configuration to allow requests from the frontend
+// Allowed origins - include local and environment-based URLs
 const allowedOrigins = [
-  "http://localhost:5173",
-  process.env.FRONTEND_URL?.trim(),
-  process.env.ADMIN_FRONTEND_URL?.trim(),
-].filter(Boolean);
+    "http://localhost:5173", // Local frontend
+    process.env.FRONTEND_URL?.trim(), // Deployed frontend
+    process.env.ADMIN_FRONTEND_URL?.trim(), // Deployed admin panel
+].filter(Boolean); // Removes undefined/null
 
+console.log("Allowed Origins:", allowedOrigins); // Debug log
+
+// CORS configuration
 const corsOptions = {
-  origin: function (origin, callback) {
-    // Allow non-browser tools like Postman (no origin)
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      console.error(" CORS blocked origin:", origin);
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
-  credentials: true,
+    origin: function (origin, callback) {
+        console.log(" Incoming origin:", origin); // See what origin is received
+
+        // Allow non-browser tools like Postman (origin === undefined/null)
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true); // Allow request
+        } else {
+            console.error(" CORS blocked origin:", origin);
+            callback(new Error("Not allowed by CORS"));
+        }
+    },
+    credentials: true, // Allow cookies & credentials from frontend
 };
-
+//  Apply CORS middleware
 app.use(cors(corsOptions));
-
 // HTTP request logger for debugging and monitoring
 app.use(morgan());
 
@@ -46,7 +50,6 @@ app.use(express.urlencoded({ extended: true }));
 
 // Middleware to parse cookies from the request headers
 app.use(cookieParser());
-
 
 app.get("/favicon.ico", (req, res) => res.status(204).end());
 
