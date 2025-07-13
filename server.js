@@ -15,6 +15,7 @@ const PORT = process.env.PORT || 5001;
 
 // Allowed origins - include local and environment-based URLs
 const allowedOrigins = [
+   "deal-spot-admin.netlify.app",
     "http://localhost:5173", // Local frontend
     process.env.FRONTEND_URL?.trim(), // Deployed frontend
     process.env.ADMIN_FRONTEND_URL?.trim(), // Deployed admin panel
