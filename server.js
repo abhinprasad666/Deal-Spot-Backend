@@ -15,27 +15,28 @@ const PORT = process.env.PORT || 5001;
 
 // CORS configuration to allow requests from the frontend
 const allowedOrigins = [
-  "http://localhost:5173",
-  process.env.ADMIN_SECOND_FRONTEND_URL,
-  process.env.FRONTEND_URL?.trim(),
-  process.env.ADMIN_FRONTEND_URL?.trim(),
-]
+    "http://localhost:5173",
+    process.env.FRONTEND_URL?.trim() || "https://deal-spot.netlify.app",
+    process.env.ADMIN_FRONTEND_URL?.trim() || "https://deal-spot-admin.netlify.app",
+    process.env.ADMIN_SECOND_FRONTEND_URL?.trim() || "deal-spot-admin.netlify.app",
+].filter(Boolean); //  removes undefined or empty string
 
 console.log("Allowed Origins =>", allowedOrigins);
 
 const corsOptions = {
-  origin: function (origin, callback) {
-    // Allow non-browser tools like Postman (no origin)
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      console.error(" CORS blocked origin:", origin);
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
-  credentials: true,
-};
+    origin: function (origin, callback) {
+        console.log("Incoming Origin =>", origin);
 
+        // Allow non-browser tools like Postman (no origin)
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            console.error(" CORS blocked origin:", origin);
+            callback(new Error("Not allowed by CORS"));
+        }
+    },
+    credentials: true, // Send cookies and auth headers
+};
 app.use(cors(corsOptions));
 
 // HTTP request logger for debugging and monitoring
@@ -49,7 +50,6 @@ app.use(express.urlencoded({ extended: true }));
 
 // Middleware to parse cookies from the request headers
 app.use(cookieParser());
-
 
 app.get("/favicon.ico", (req, res) => res.status(204).end());
 
