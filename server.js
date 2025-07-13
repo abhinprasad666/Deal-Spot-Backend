@@ -19,7 +19,9 @@ const allowedOrigins = [
   process.env.ADMIN_SECOND_FRONTEND_URL,
   process.env.FRONTEND_URL?.trim(),
   process.env.ADMIN_FRONTEND_URL?.trim(),
-].filter(Boolean);
+]
+
+console.log("Allowed Origins =>", allowedOrigins);
 
 const corsOptions = {
   origin: function (origin, callback) {
