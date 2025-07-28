@@ -11,37 +11,28 @@ import authRouter from "./authRoutes.js";
 import sliderRouter from "./sliderRoutes.js";
 import orderRouter from "./orderRoutes.js";
 
-
-
-const router=Router()
-
+const router = Router();
 
 //auth Allusers router
-router.use('/auth',authRouter);
+router.use("/auth", authRouter);
 //user router
-router.use('/user',userRouter);
+router.use("/user", userRouter);
 // seller router
-router.use('/seller',sellerRouter);
+router.use("/seller", sellerRouter);
 //admin router
-router.use('/admin',adminRouter);
+router.use("/admin", adminRouter);
 //product router
-router.use('/product',productRouter);
+router.use("/product", productRouter);
 //review router
-router.use('/review',reviewRouter);
+router.use("/review", reviewRouter);
 //category router
-router.use('/category',categoryRouter);
+router.use("/category", categoryRouter);
 //cart router
-router.use('/cart',cartRouter);
+router.use("/cart", cartRouter);
 //payment router
-router.use('/payment',paymentRouter)
+router.use("/payment", paymentRouter);
 //slider router
-router.use('/slide',sliderRouter)
-router.use('/order',orderRouter)
+router.use("/slide", sliderRouter);
+router.use("/order", orderRouter);
 
-
-
-
-
-
-
-export default router
+export default router;

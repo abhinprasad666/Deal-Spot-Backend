@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { protectRoute } from "../middlewares/protectRoute.js";
-import { createOrder, getAllOrders, getMyOrders, getOrderById, getOrderStatusCounts, getTotalRevenue, } from "../controllers/orderController.js";
+import { createOrder, getAllOrders, getMyOrders, getOrderById, getOrderStatusCounts, getTotalRevenue, updateOrderStatus, } from "../controllers/orderController.js";
 import { isAdmin } from "../middlewares/roleMiddleware.js";
 // import { isAdmin } from "../middlewares/roleMiddleware";
 
@@ -27,7 +27,7 @@ orderRouter.get("/total/revenue", protectRoute,isAdmin, getTotalRevenue);
 orderRouter.get("/status/counts", protectRoute,isAdmin, getOrderStatusCounts);
 
 // // Admin: Update order status
-// orderRouter.put("/:id/status", protectRoute, isAdmin, updateOrderStatus);
+orderRouter.put("/:orderId/status", protectRoute, isAdmin, updateOrderStatus);
 
 
 

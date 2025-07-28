@@ -27,7 +27,6 @@ const corsOptions = {
     origin: function (origin, callback) {
         console.log("Incoming Origin =>", origin);
 
-        // Allow non-browser tools like Postman (no origin)
         if (!origin || allowedOrigins.includes(origin)) {
             callback(null, true);
         } else {

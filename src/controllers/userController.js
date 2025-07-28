@@ -14,6 +14,11 @@ export const getMyProfileController = asyncHandler(async (req, res) => {
         res.status(404);
         throw new Error("User not found");
     }
+      //check  Uuer status 
+  if (user && user.status === "blocked") {
+    res.status(403); // Forbidden
+    throw new Error("Your account has been blocked. Please contact support.");
+  }
 
     res.status(200).json({
         success: true,
@@ -44,20 +49,18 @@ export const updateMyProfileController = asyncHandler(async (req, res) => {
             res.status(400);
             throw new Error("Password must be at least 8 characters");
         }
-         const isMatch = await bcrypt.compare(currentPassword, existUser.password);
+        const isMatch = await bcrypt.compare(currentPassword, existUser.password);
 
-          if (!isMatch) {
-        res.status(404);
         if (!isMatch) {
-            res.status(400);
-            throw new Error("The current password you entered is incorrect. Please try again.");
+            res.status(404);
+            if (!isMatch) {
+                res.status(400);
+                throw new Error("The current password you entered is incorrect. Please try again.");
+            }
         }
-    }
-    
-    existUser.password = newPassword; // Pre-save hook will hash it
-        
-    }
 
+        existUser.password = newPassword; // Pre-save hook will hash it
+    }
 
     // Update name and email if provided
     existUser.name = name || existUser.name;

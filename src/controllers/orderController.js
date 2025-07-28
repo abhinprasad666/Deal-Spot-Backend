@@ -80,29 +80,6 @@ export const getOrderById = asyncHandler(async (req, res) => {
     res.status(200).json({ success: true, order });
 });
 
-// @desc    Update order status (admin only)
-// @route   PUT /api/v1/order/:id/status
-// @access  Admin
-export const updateOrderStatus = asyncHandler(async (req, res) => {
-    const { status } = req.body;
-    const order = await Order.findById(req.params.id);
-
-    if (!order) {
-        res.status(404);
-        throw new Error("Order not found");
-    }
-
-    order.status = status;
-    order.statusHistory.push({ status });
-
-    if (status === "Delivered") {
-        order.deliveredAt = new Date();
-    }
-
-    const updatedOrder = await order.save();
-    res.status(200).json({ success: true, order: updatedOrder });
-});
-
 // get all orders
 
 
@@ -149,5 +126,59 @@ export const getOrderStatusCounts = asyncHandler(async (req, res) => {
   res.status(200).json({
     success: true,
     statusCounts: counts,
+  });
+});
+
+
+
+
+// @desc    Update order status (admin only)
+// @route   PUT /api/v1/order/:id/status
+// @access  Admin
+
+export const updateOrderStatus = asyncHandler(async (req, res) => {
+  const { orderId } = req.params;
+  const { newStatus } = req.body;
+  console.log("new status",newStatus)
+
+  // Check status is valid
+  const validStatuses = ["Pending", "Confirmed", "Shipped", "Delivered", "Cancelled", "Refunded"];
+  if (!validStatuses.includes(newStatus)) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid status value.",
+    });
+  }
+
+  const order = await Order.findById(orderId);
+
+  if (!order) {
+    return res.status(404).json({
+      success: false,
+      message: "Order not found.",
+    });
+  }
+
+  // Update the status
+  order.status = newStatus;
+
+  // Add to status history
+  order.statusHistory.push({
+    status: newStatus,
+    changedAt: new Date(),
+  });
+
+  // If delivered, set deliveredAt
+  if (newStatus === "Delivered") {
+    order.deliveredAt = new Date();
+  }
+
+  // Save the order
+  await order.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Order status updated successfully.",
+    order,
   });
 });
